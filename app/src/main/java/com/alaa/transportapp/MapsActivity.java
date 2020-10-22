@@ -1,13 +1,5 @@
 package com.alaa.transportapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -17,6 +9,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.fragments.MainFragment;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -37,7 +37,6 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
-
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -221,6 +220,7 @@ public class MapsActivity extends FragmentActivity {
             }
         }
 
+
         public Feature getNearest(double latitude, double longitude) {
             double east_start = 35.485461d; // we used as a reference line for latitude by mistake :< and we don't want to recompile data again because it actually does not affect shit!
             double east_end = 36.736622d;
@@ -235,28 +235,28 @@ public class MapsActivity extends FragmentActivity {
                 return (int) ((a_key - b_key) * 1000000);
             });
 
+            if (index >= 0) {
 
-            double distance_first = Double.MAX_VALUE;
-            double distance_second = Double.MAX_VALUE;
-            double distance_third = Double.MAX_VALUE;
-            if (index > 0) {
-
-                distance_first = SphericalUtil.computeDistanceBetween(new LatLng(latitude, longitude), new LatLng(features[index - 1].geometry.coordinates[1], features[index - 1].geometry.coordinates[0]));
-            }
-
-            distance_second = SphericalUtil.computeDistanceBetween(new LatLng(latitude, longitude), new LatLng(features[index].geometry.coordinates[1], features[index].geometry.coordinates[0]));
-
-            if (index < features.length - 1) {
-                distance_third = SphericalUtil.computeDistanceBetween(new LatLng(latitude, longitude), new LatLng(features[index + 1].geometry.coordinates[1], features[index + 1].geometry.coordinates[0]));
-            }
-
-            double min = Math.min(Math.min(distance_first, distance_second), distance_third);
-            if (min == distance_first) {
-                return features[index - 1];
-            } else if (min == distance_second) {
                 return features[index];
+
             } else {
-                return features[index + 1];
+
+                index = -1 * (index + 1);
+
+                double distance_first = Double.MAX_VALUE;
+                double distance_second = Double.MAX_VALUE;
+                if (index > 0) {
+
+                    distance_first = SphericalUtil.computeDistanceBetween(new LatLng(latitude, longitude), new LatLng(features[index - 1].geometry.coordinates[1], features[index - 1].geometry.coordinates[0]));
+                }
+
+                distance_second = SphericalUtil.computeDistanceBetween(new LatLng(latitude, longitude), new LatLng(features[index].geometry.coordinates[1], features[index].geometry.coordinates[0]));
+
+                if (distance_first < distance_second) {
+                    return features[index - 1];
+                } else {
+                    return features[index];
+                }
             }
 
 

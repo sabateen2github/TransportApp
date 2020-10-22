@@ -3,7 +3,7 @@
     <style name="Theme.TransportApp" parent="Theme.MaterialComponents.Light">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#EAEAEA</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimaryVariant">#E7EBEC</item>
         <item name="colorOnPrimary">#292929</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>

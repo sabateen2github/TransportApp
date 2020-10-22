@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="65dp"
-        android:backgroundTint="#019592"
+        android:backgroundTint="#009688"
         android:minWidth="200dp"
         android:text="عرض اقرب حافلة"
         android:textColor="#FFFFFF"
@@ -82,7 +82,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_bus_stop" />
+        app:srcCompat="@drawable/ic_baseline_location_on_24" />
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"

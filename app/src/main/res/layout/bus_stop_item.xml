@@ -4,6 +4,7 @@
     android:id="@+id/bus_stop_item_schedule"
     android:layout_width="350dp"
     android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
     android:background="@drawable/edit_text_rounded_background">
 
     <TextView
@@ -25,13 +26,14 @@
         android:layout_marginTop="8dp"
         android:text="8:40 ص"
         android:textSize="16dp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bus_stop_item_route" />
 
     <TextView
-        android:id="@+id/bus_stop_yem_count"
+        android:id="@+id/bus_stop_item_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
