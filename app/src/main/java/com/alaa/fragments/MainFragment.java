@@ -8,11 +8,12 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.alaa.transportapp.R;
+import com.alaa.utils.AnimationFragment;
 
-public class MainFragment extends Fragment {
+public class MainFragment extends AnimationFragment {
 
     @Nullable
     @Override
@@ -27,11 +28,11 @@ public class MainFragment extends Fragment {
         Button driver = view.findViewById(R.id.main_driver_button);
 
         passenger.setOnClickListener((View v) -> {
-            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new PassengerMainFragment()).addToBackStack(null).commit();
+            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new ChooseServiceFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
         });
 
         driver.setOnClickListener((View v) -> {
-            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new DriverEnterIDFragment()).addToBackStack(null).commit();
+            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new DriverEnterIDFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
         });
 
     }

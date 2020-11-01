@@ -1,7 +1,6 @@
 package com.alaa.fragments;
 
-import android.app.Activity;
-import android.app.Application;
+
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,26 +11,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.transportapp.MapsActivity;
 import com.alaa.transportapp.R;
+import com.alaa.utils.AnimationFragment;
+import com.alaa.viewmodels.ActivityModel;
+import com.alaa.viewmodels.PassengerState;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PassengerMainFragment extends Fragment implements OnMapReadyCallback {
+public class PassengerMainFragment extends AnimationFragment implements OnMapReadyCallback {
 
 
     private PassengerState stateModel;
@@ -60,35 +60,24 @@ public class PassengerMainFragment extends Fragment implements OnMapReadyCallbac
             selectedBusStop.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.teal_700, getActivity().getTheme())));
             selectedBusStop.setOnClickListener(v -> {
                 //show schedule of the selected busStop
-                getParentFragmentManager().beginTransaction().replace(android.R.id.content, new BusStopFragment()).addToBackStack(null).commit();
+                getParentFragmentManager().beginTransaction().replace(android.R.id.content, new BusStopFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
             });
         }
 
 
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        stateModel = new ViewModelProvider(requireActivity()).get(PassengerState.class);
+
+        long elapes = System.currentTimeMillis();
+
+        ViewModelProvider provider = new ViewModelProvider(requireActivity());
+        stateModel = provider.get(PassengerState.class);
         PassengerState.State state = stateModel.state.getValue();
 
-        if (state.reqSent) {
-            view.findViewById(R.id.passenger_request_text).setVisibility(View.VISIBLE);
-            ((AppCompatButton) view.findViewById(R.id.passenger_action_button)).setText(R.string.passenger_action_text_req_sent);
-        } else {
-            view.findViewById(R.id.passenger_request_text).setVisibility(View.GONE);
-            ((AppCompatButton) view.findViewById(R.id.passenger_action_button)).setText(R.string.passenger_action_text_req_unsent);
-        }
-
-        ((AppCompatButton) view.findViewById(R.id.passenger_action_button)).setOnClickListener(v -> {
-            //show related data
-            if (state.reqSent) {
-
-            } else {
-
-            }
-        });
 
         AppCompatImageView arrowBack = view.findViewById(R.id.passenger_back);
         arrowBack.setOnClickListener(v -> {
@@ -108,12 +97,12 @@ public class PassengerMainFragment extends Fragment implements OnMapReadyCallbac
 
             ((MapsActivity) getActivity()).getCurrentLocation((LatLng loc) -> {
 
-                final MapsActivity.ActivityModel model = new ViewModelProvider(getActivity()).get(MapsActivity.ActivityModel.class);
+                final ActivityModel model = new ViewModelProvider(getActivity()).get(ActivityModel.class);
                 model.exe.execute(() -> {
 
-                    MapsActivity.PointsStructure.Feature feature = model.index.getValue().getNearest(loc.latitude, loc.longitude);
+                    ActivityModel.PointsStructure.Feature feature = model.index.getValue().getNearest(loc.latitude, loc.longitude);
                     LatLng busStop_loc = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-                    model.mainHandelr.post(() -> {
+                    model.mainHandelr.post(this, () -> {
                         stateModel.setCurrentLocation(loc);
                         stateModel.setMapCenter(busStop_loc);
                         stateModel.setMapZoom(16);
@@ -153,13 +142,15 @@ public class PassengerMainFragment extends Fragment implements OnMapReadyCallbac
                 }
             }
         });
+
+
     }
 
-    private void generateMarkers(MapsActivity.ActivityModel model) {
+    private void generateMarkers(ActivityModel model) {
 
         model.exe.execute(() -> {
             List<MarkerItem> items = new ArrayList<>();
-            for (MapsActivity.PointsStructure.Feature feature : model.index.getValue().features) {
+            for (ActivityModel.PointsStructure.Feature feature : model.index.getValue().features) {
                 MarkerItem mItem = new MarkerItem(feature);
                 items.add(mItem);
             }
@@ -173,7 +164,7 @@ public class PassengerMainFragment extends Fragment implements OnMapReadyCallbac
         ClusterManager<MarkerItem> manager = new ClusterManager<>(getActivity(), mMap);
         manager.setOnClusterItemInfoWindowClickListener((item) -> {
             //show schedule of the selected busStop
-            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new BusStopFragment()).addToBackStack(null).commit();
+            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new BusStopFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
         });
         mMap.setOnCameraIdleListener(manager);
         mMap.setOnMarkerClickListener(manager);
@@ -197,6 +188,7 @@ public class PassengerMainFragment extends Fragment implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         if (mMap != null) return;
 
         mMap = googleMap;
@@ -206,7 +198,7 @@ public class PassengerMainFragment extends Fragment implements OnMapReadyCallbac
             stateModel.state.getValue().mapCenter = pos.target;
         });
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(stateModel.state.getValue().mapCenter, stateModel.state.getValue().mapZoom));
-        final MapsActivity.ActivityModel model = new ViewModelProvider(getActivity()).get(MapsActivity.ActivityModel.class);
+        final ActivityModel model = new ViewModelProvider(getActivity()).get(ActivityModel.class);
 
         if (model.index.getValue() == null) {
             model.index.observe(getViewLifecycleOwner(), (item) -> {
@@ -225,89 +217,16 @@ public class PassengerMainFragment extends Fragment implements OnMapReadyCallbac
         }
     }
 
-    public static class PassengerState extends androidx.lifecycle.AndroidViewModel {
-
-        MutableLiveData<State> state;
-        MutableLiveData<List<MarkerItem>> markers;
-
-        public PassengerState(Application context) {
-            super(context);
-            markers = new MutableLiveData<>();
-            state = new MutableLiveData<State>();
-            state.setValue(new State());
-            state.getValue().selectedBusStop = null;
-            state.getValue().reqSent = false;
-            state.getValue().currentLocation = new LatLng(31.97164183082986d, 35.833652222827524d);
-            state.getValue().mapZoom = 15;
-            state.getValue().mapCenter = new LatLng(31.97164183082986d, 35.833652222827524d);
-            state.getValue().init = true;
-            update();
-        }
-
-        public void setCurrentLocation(LatLng location) {
-            state.getValue().currentLocation = location;
-        }
-
-        public void sendRequest(Object dontKnow) {
-            state.getValue().reqSent = true;
-        }
-
-        public void setMapCenter(LatLng center) {
-            state.getValue().mapCenter = center;
-        }
-
-        public void setMapZoom(int zoom) {
-            state.getValue().mapZoom = zoom;
-        }
-
-        public void setSelectedBusStop(MapsActivity.PointsStructure.Feature object) {
-            state.getValue().selectedBusStop = object;
-        }
-
-        private void setSearchResult(LatLng result, LatLngBounds viewPort) {
-            state.getValue().searchResult = result;
-            state.getValue().searchViewPort = viewPort;
-        }
-
-        public void queryResult(Activity activity) {
-            ((MapsActivity) activity).getSearchResult((LatLng selection, LatLngBounds viewPort) -> {
-                if (selection == null) return;
-                setSearchResult(selection, viewPort);
-                update();
-            });
-        }
-
-        public void update() {
-            state.setValue(state.getValue());
-        }
-
-
-        class State {
-            LatLng currentLocation;
-            boolean reqSent = false;
-            LatLng mapCenter;
-            LatLng searchResult;
-            LatLngBounds searchViewPort;
-            float mapZoom;
-            MapsActivity.PointsStructure.Feature selectedBusStop;
-            boolean init = false;
-            boolean is_getting_location_done = true;
-
-        }
-
-
-    }
-
 
     public static class MarkerItem implements ClusterItem {
 
-        private MapsActivity.PointsStructure.Feature mFeature;
+        private ActivityModel.PointsStructure.Feature mFeature;
 
-        public MarkerItem(MapsActivity.PointsStructure.Feature feature) {
+        public MarkerItem(ActivityModel.PointsStructure.Feature feature) {
             mFeature = feature;
         }
 
-        public MapsActivity.PointsStructure.Feature getFeature() {
+        public ActivityModel.PointsStructure.Feature getFeature() {
             return mFeature;
         }
 

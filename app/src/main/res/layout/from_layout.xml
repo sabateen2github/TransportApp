@@ -3,32 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_color">
-
-    <fragment
-        android:id="@+id/passenger_map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:contxt=".MapsActivity" />
+    android:layout_height="match_parent">
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="36dp"
         android:layout_marginStart="8dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="20dp"
         android:clickable="false"
         app:cardCornerRadius="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/passenger_map"
+        app:layout_constraintBottom_toBottomOf="@+id/map"
         app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
-            android:id="@+id/passenger_current_bus_stop"
+            android:id="@+id/current_location"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="?android:attr/selectableItemBackgroundBorderless"
@@ -41,10 +29,10 @@
                 android:gravity="center"
                 android:paddingStart="16dp"
                 android:paddingEnd="4dp"
-                android:text="أقرب نقطة توقف" />
+                android:text="موقعك الحالي" />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/passenger_current_position"
+                android:id="@+id/current_location_icon"
                 android:layout_width="36dp"
                 android:layout_height="match_parent"
                 android:clickable="false"
@@ -55,21 +43,6 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
-
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/passenger_show_schedule"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="16dp"
-        android:backgroundTint="#FFFFFF"
-        android:text="عرض جدول رحلات النقطة المختارة"
-        android:textColor="#3E3E3E"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/passenger_map"
-        app:layout_constraintTop_toBottomOf="@+id/cardView2" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView2"
@@ -91,7 +64,7 @@
             android:paddingEnd="8dp">
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/passenger_search"
+                android:id="@+id/from_search"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginTop="4dp"
@@ -104,7 +77,7 @@
                 app:srcCompat="@drawable/ic_baseline_search_24" />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/passenger_back"
+                android:id="@+id/arrow_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -119,28 +92,58 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="56dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="16dp"
                 android:gravity="center"
-                android:text="قم بتكبير الخريطة حتى تظهر نقاط التوقف كما في الرمز الذي في الاعلى"
+                android:text="لتحديد نقطة البدء قم بتحريك الخريطة حتى يصبح الدبوس في مكان نقطة البدء المطلوبة أو قم بالضغط على ايقونة البحث او اضغط على زر موقعك الحالي "
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView13" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textView13"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="center"
+                android:text="قم باختيار نقطة البدء"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/from_search"
+                app:layout_constraintStart_toEndOf="@+id/arrow_back"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/imageView3"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_baseline_location_on_24" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        tools:contxt=".MapsActivity" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/next"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#009688"
+        android:text="التالي"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

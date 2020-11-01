@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_color">
@@ -10,11 +9,10 @@
         android:id="@+id/req_status_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="#019592"
+        android:layout_marginTop="72dp"
+        android:backgroundTint="#FFFFFF"
         android:minWidth="200dp"
         android:text="الغاء"
-        android:textColor="#FFFFFF"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,56 +20,51 @@
         app:layout_constraintTop_toBottomOf="@+id/textView15" />
 
     <Button
-        android:id="@+id/req_status_track_bus"
+        android:id="@+id/req_status_done"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="تعقب الحافلة على الخريطة"
-        app:icon="@drawable/ic_baseline_place_24"
-        app:iconGravity="start"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#019592"
+        android:minWidth="200dp"
+        android:text="تم"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/req_status_est_time" />
+        app:layout_constraintTop_toBottomOf="@+id/textView15" />
 
     <TextView
         android:id="@+id/textView15"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:gravity="center"
-        android:text="سوف يقوم النظام بتحويل حافلة لنقطة انتظارك للقيام بالرحلة حسب مجموعة من المعايير  مثل كمية البلاغات و مواقع الحافلات القريبة  و التكلفة وغيرها  \n\n  قد لا يتم تحويل أي حافلة لتقليل وقت الانتظار  اذا لم تتحقق شروط التحويل من توافر  حافلة قريبة و تواجد عدد بلاغات فوق الحد الأدنى لكي يكون التحويل مجديا ولا يؤدي الى خسائر.  "
+        android:text="سوف يقوم النظام بتحويل حافلة لنقطة انتظارك للقيام بالرحلة حسب مجموعة من المعايير  مثل كمية البلاغات و مواقع الحافلات القريبة  و التكلفة وغيرها  \n\n  قد لا يتم تحويل أي حافلة لتقليل وقت الانتظار  اذا لم تتحقق شروط التحويل من توافر  حافلة قريبة و تواجد عدد بلاغات فوق الحد الأدنى لكي يكون التحويل مجديا ولا يؤدي الى خسائر وأن تكون اقرب حافلة تحتاج على الأقل لنصف ساعة دقيقة للوصول.  "
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/status_text" />
+
+    <TextView
+        android:id="@+id/status_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center"
+        android:text="حالة الطلب : قيد المراجعة"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/req_status_est_time" />
-
-    <ImageView
-        android:id="@+id/passenger_help"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:clickable="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_baseline_error_outline_24" />
-
-    <TextView
-        android:id="@+id/passenegr_help_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:clickable="true"
-        android:text="مساعدة"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@+id/passenger_help"
-        app:layout_constraintHorizontal_bias="0.619"
-        app:layout_constraintStart_toStartOf="@+id/passenger_help"
-        app:layout_constraintTop_toBottomOf="@+id/passenger_help" />
 
     <TextView
         android:id="@+id/textView14"
@@ -80,17 +73,19 @@
         android:layout_marginTop="18dp"
         android:text="طلب توصيلة"
         android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.41"
         app:layout_constraintStart_toEndOf="@+id/arrow_back"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/arrow_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_baseline_arrow_back_24" />
@@ -112,8 +107,49 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="50 دقيقة"
+        android:text="جاري التحميل..."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView16" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/help_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:padding="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/passenger_help"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:contextClickable="false"
+            android:longClickable="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_baseline_error_outline_24" />
+
+        <TextView
+            android:id="@+id/passenegr_help_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:clickable="false"
+            android:contextClickable="false"
+            android:linksClickable="false"
+            android:longClickable="false"
+            android:text="مساعدة"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/passenger_help"
+            app:layout_constraintStart_toStartOf="@+id/passenger_help"
+            app:layout_constraintTop_toBottomOf="@+id/passenger_help" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

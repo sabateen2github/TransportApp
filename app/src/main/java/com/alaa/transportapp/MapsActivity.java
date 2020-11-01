@@ -4,9 +4,9 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
@@ -14,11 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.fragments.MainFragment;
+import com.alaa.utils.getTimeUtils;
+import com.alaa.viewmodels.ActivityModel;
+import com.alaa.viewmodels.PassengerRequestModel;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -29,22 +30,21 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
-import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class MapsActivity extends FragmentActivity {
@@ -60,11 +60,15 @@ public class MapsActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(this).get(ActivityModel.class);
+
+        findViewById(android.R.id.content).setBackgroundColor(getColor(R.color.background_color));
+
+        ViewModelProvider provider = new ViewModelProvider(this);
+        viewModel = provider.get(ActivityModel.class);
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), getString(R.string.maps_api_key), Locale.US);
         }
-        viewModel.mainHandelr = new Handler();
+        viewModel.mainHandelr.init();
         if (savedInstanceState == null) {
             viewModel.callbacks_settings = new LinkedList<>();
             viewModel.callbacks_permission = new LinkedList<>();
@@ -74,7 +78,7 @@ public class MapsActivity extends FragmentActivity {
                 try {
                     InputStreamReader reader = new InputStreamReader(getAssets().open("final_schedule.json"));
                     Gson gson = new Gson();
-                    final PointsStructure points = gson.fromJson(reader, PointsStructure.class);
+                    final ActivityModel.PointsStructure points = gson.fromJson(reader, ActivityModel.PointsStructure.class);
                     viewModel.index.postValue(points);
                     reader.close();
                 } catch (IOException e) {
@@ -84,6 +88,28 @@ public class MapsActivity extends FragmentActivity {
 
             getSupportFragmentManager().beginTransaction().add(android.R.id.content, new MainFragment()).commit();
         }
+
+        if (ActivityModel.isSimulation) {
+            runSimulation();
+        }
+
+
+        provider.get(PassengerRequestModel.class).status.observe(this, (item) -> {
+
+            switch (item) {
+
+                case PassengerRequestModel.STATUS_PENDING:
+                    if (viewModel.already_set) break;
+                    viewModel.instant = getTimeUtils.getInstant();
+                    viewModel.already_set = true;
+                    keepchecking();
+                    break;
+                default:
+                    viewModel.already_set = false;
+                    break;
+            }
+        });
+
     }
 
     @Override
@@ -91,18 +117,18 @@ public class MapsActivity extends FragmentActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SETTINGS_CODE) {
 
-            getCurrentLocationCallback callback = viewModel.callbacks_settings.removeFirst();
+            ActivityModel.getCurrentLocationCallback callback = viewModel.callbacks_settings.removeFirst();
             getCurrentLocation(callback);
         } else if (requestCode == AUTO_COMPLETE_MAP) {
             if (resultCode == RESULT_OK) {
 
                 Place place = Autocomplete.getPlaceFromIntent(data);
-                getSearchMap c = viewModel.callback_search;
+                ActivityModel.getSearchMap c = viewModel.callback_search;
 
                 viewModel.callback_search = null;
                 c.onSelect(place.getLatLng(), place.getViewport());
             } else {
-                getSearchMap c = viewModel.callback_search;
+                ActivityModel.getSearchMap c = viewModel.callback_search;
                 viewModel.callback_search = null;
                 if (c != null)
                     c.onSelect(null, null);
@@ -114,7 +140,7 @@ public class MapsActivity extends FragmentActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_CODE) {
-            getCurrentLocationCallback callback = viewModel.callbacks_permission.removeFirst();
+            ActivityModel.getCurrentLocationCallback callback = viewModel.callbacks_permission.removeFirst();
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 getCurrentLocation(callback);
             } else {
@@ -123,7 +149,7 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
-    public void getCurrentLocation(getCurrentLocationCallback callback) {
+    public void getCurrentLocation(ActivityModel.getCurrentLocationCallback callback) {
 
         //get Current location
         LocationRequest request = LocationRequest.create();
@@ -171,7 +197,7 @@ public class MapsActivity extends FragmentActivity {
     }
 
 
-    public void getSearchResult(getSearchMap callback) {
+    public void getSearchResult(ActivityModel.getSearchMap callback) {
         List<Place.Field> fields = Arrays.asList(Place.Field.LAT_LNG, Place.Field.NAME, Place.Field.VIEWPORT);
 
         Autocomplete.IntentBuilder builder = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields);
@@ -182,85 +208,57 @@ public class MapsActivity extends FragmentActivity {
     }
 
 
-    @FunctionalInterface
-    public static interface getSearchMap {
-        public void onSelect(@Nullable LatLng center, @Nullable LatLngBounds viewPort);
-    }
+    public void runSimulation() {
 
-    @FunctionalInterface
-    public static interface getCurrentLocationCallback {
-        public void onUpdate(@Nullable LatLng center);
-    }
 
-    public static class ActivityModel extends ViewModel {
-        private LinkedList<getCurrentLocationCallback> callbacks_settings;
-        private LinkedList<getCurrentLocationCallback> callbacks_permission;
-        private getSearchMap callback_search;
-        public MutableLiveData<PointsStructure> index;
-        public Executor exe;
-        public Handler mainHandelr;
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), MessageFormat.format("Simulation is running {0}", getTimeUtils.getCurrentTime()), Snackbar.LENGTH_INDEFINITE);
 
-        {
-            index = new MutableLiveData<>();
-        }
-    }
+        snackbar.setAction("توقف", (v) -> {
+            ActivityModel.isSimulation = false;
+            snackbar.dismiss();
+        });
+        snackbar.setActionTextColor(Color.CYAN);
 
-    public static class PointsStructure {
-        public String type;
-        public Feature[] features;
-
-        public static class Feature {
-            public String type;
-            public long id;
-            public Geometry geometry;
-
-            public static class Geometry {
-                public String type;
-                public double[] coordinates;
+        ViewModelProvider provider = new ViewModelProvider(this);
+        provider.get(ActivityModel.class).mainHandelr.postDelayed(this, new Runnable() {
+            @Override
+            public void run() {
+                snackbar.setText(MessageFormat.format("simulation is running {0}", getTimeUtils.getCurrentTime()));
+                provider.get(ActivityModel.class).mainHandelr.postDelayed(MapsActivity.this, this, 1000);
             }
-        }
+        }, 1000);
+        snackbar.show();
+        ActivityModel.isSimulation = true;
+    }
 
 
-        public Feature getNearest(double latitude, double longitude) {
-            double east_start = 35.485461d; // we used as a reference line for latitude by mistake :< and we don't want to recompile data again because it actually does not affect shit!
-            double east_end = 36.736622d;
+    public void handleAboutClick() {
+    }
 
-            Feature f = new Feature();
-            f.geometry = new Feature.Geometry();
-            f.geometry.coordinates = new double[]{longitude, latitude};
 
-            int index = Arrays.binarySearch(features, f, (a, b) -> {
-                double a_key = (a.geometry.coordinates[0] - east_start) + (a.geometry.coordinates[1] - east_start) * (east_end - east_start);
-                double b_key = (b.geometry.coordinates[0] - east_start) + (b.geometry.coordinates[1] - east_start) * (east_end - east_start);
-                return (int) ((a_key - b_key) * 1000000);
-            });
+    public void keepchecking() {
 
-            if (index >= 0) {
-
-                return features[index];
-
-            } else {
-
-                index = -1 * (index + 1);
-
-                double distance_first = Double.MAX_VALUE;
-                double distance_second = Double.MAX_VALUE;
-                if (index > 0) {
-
-                    distance_first = SphericalUtil.computeDistanceBetween(new LatLng(latitude, longitude), new LatLng(features[index - 1].geometry.coordinates[1], features[index - 1].geometry.coordinates[0]));
-                }
-
-                distance_second = SphericalUtil.computeDistanceBetween(new LatLng(latitude, longitude), new LatLng(features[index].geometry.coordinates[1], features[index].geometry.coordinates[0]));
-
-                if (distance_first < distance_second) {
-                    return features[index - 1];
-                } else {
-                    return features[index];
+        viewModel.mainHandelr.post(this, new Runnable() {
+            @Override
+            public void run() {
+                PassengerRequestModel passengerModel = new ViewModelProvider(MapsActivity.this).get(PassengerRequestModel.class);
+                switch (passengerModel.status.getValue()) {
+                    case PassengerRequestModel.STATUS_NOT_SENT:
+                        break;
+                    case PassengerRequestModel.STATUS_PENDING: {
+                        if (getTimeUtils.getPeriodFromNow(viewModel.instant[0], viewModel.instant[1]) * -1 >= 5) {
+                            passengerModel.status.setValue(Math.random() > 0.5d ? PassengerRequestModel.STATUS_ACCEPTED : PassengerRequestModel.STATUS_DENIED);
+                        } else {
+                            viewModel.mainHandelr.postDelayed(MapsActivity.this, this, 1000);
+                        }
+                    }
+                    break;
+                    case PassengerRequestModel.STATUS_DENIED:
+                        break;
+                    case PassengerRequestModel.STATUS_ACCEPTED:
+                        break;
                 }
             }
-
-
-        }
+        });
     }
-
 }

@@ -4,13 +4,13 @@ plugins {
 
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 29
     buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "com.alaa.transportapp"
-        minSdkVersion 28
-        targetSdkVersion 30
+        minSdkVersion 23
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
@@ -48,6 +48,9 @@ dependencies {
     implementation 'com.google.android.libraries.places:places:2.4.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.maps.android:android-maps-utils:2.0.3'
+    implementation 'org.locationtech.proj4j:proj4j:1.1.1'
+    implementation 'com.opencsv:opencsv:4.6'
+
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
