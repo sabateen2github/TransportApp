@@ -1,6 +1,7 @@
 package com.alaa.transportapp;
 
 import android.Manifest;
+import android.app.Application;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -17,6 +18,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.fragments.MainFragment;
+import com.alaa.utils.GetAssets;
 import com.alaa.utils.getTimeUtils;
 import com.alaa.viewmodels.ActivityModel;
 import com.alaa.viewmodels.PassengerRequestModel;
@@ -61,6 +63,7 @@ public class MapsActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         findViewById(android.R.id.content).setBackgroundColor(getColor(R.color.background_color));
 
         ViewModelProvider provider = new ViewModelProvider(this);
@@ -73,10 +76,11 @@ public class MapsActivity extends FragmentActivity {
             viewModel.callbacks_settings = new LinkedList<>();
             viewModel.callbacks_permission = new LinkedList<>();
             viewModel.exe = Executors.newSingleThreadExecutor();
-
+            Application app = getApplication();
             viewModel.exe.execute(() -> {
+
                 try {
-                    InputStreamReader reader = new InputStreamReader(getAssets().open("final_schedule.json"));
+                    InputStreamReader reader = new InputStreamReader(GetAssets.open(app, "final_schedule.json"));
                     Gson gson = new Gson();
                     final ActivityModel.PointsStructure points = gson.fromJson(reader, ActivityModel.PointsStructure.class);
                     viewModel.index.postValue(points);

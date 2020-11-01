@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
+import com.alaa.utils.GetAssets;
 import com.alaa.utils.getTimeUtils;
 import com.google.gson.Gson;
 
@@ -120,7 +121,7 @@ public class BusStopViewModel extends ViewModel {
         public static Properties getProperties(Application application, ActivityModel.PointsStructure.Feature feature) {
             Properties prop = null;
             try {
-                InputStreamReader reader = new InputStreamReader(application.getAssets().open("schedules/" + feature.id + ".json"));
+                InputStreamReader reader = new InputStreamReader(GetAssets.open(application, "schedules/" + feature.id + ".json"));
                 Gson gson = new Gson();
                 prop = gson.fromJson(reader, Properties.class);
                 prop.chosen_schedule = prop.schedule;

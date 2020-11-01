@@ -83,7 +83,7 @@ public class FindPathModel extends ViewModel {
                 while (errors < 5) {
                     Log.e("Alaa", "looping");
                     try {
-                        URL url = new URL(MessageFormat.format("https://new-age-192017.uc.r.appspot.com/?from={0}&to={1}", id_from, id_to));
+                        URL url = new URL(MessageFormat.format(getFromToServiceURL() + "/?from={0}&to={1}", id_from, id_to));
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                         s = gson.fromJson(reader, Step[].class);
@@ -156,6 +156,14 @@ public class FindPathModel extends ViewModel {
                     }
                     features.add(steroid);
                 }
+                for (int i = 0; i < features.size(); i++) {
+                    String[] names = features.get(i).step.receive;
+                    for (int x = 0; x < names.length; x++) {
+                        String[] pair = names[x].substring(0, names[x].indexOf(".response")).split("-");
+                        names[x] = MessageFormat.format("من {0} الى {1}", pair[0], pair[1]);
+                    }
+                }
+
                 if (From == _From && To == _To) {
 
 
@@ -172,13 +180,37 @@ public class FindPathModel extends ViewModel {
                 });
             }
 
+
         });
 
     }
 
+
+    private static String cachedURL = null;
+
+    private static String getFromToServiceURL() {
+        if (cachedURL != null) return cachedURL;
+        try {
+            URL url = new URL("http://alaa4sabateen.000webhostapp.com/AppEngineURL.id");
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String AppEngineURL = reader.readLine();
+            connection.disconnect();
+            cachedURL = AppEngineURL;
+            return AppEngineURL;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Log.e("Alaa", "Get AppEngine URL Failed");
+        return "https://new-age-192017.uc.r.appspot.com";
+    }
+
     public static class Step {
-        int id;
-        String[] receive;
+        public int id;
+        public String[] receive;
     }
 
     public static class StepSteroid {

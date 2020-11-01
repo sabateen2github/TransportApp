@@ -1,5 +1,6 @@
 package com.alaa.fragments;
 
+import android.app.Application;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import androidx.transition.TransitionManager;
 
 import com.alaa.transportapp.R;
 import com.alaa.utils.AnimationFragment;
+import com.alaa.utils.GetAssets;
 import com.alaa.utils.getTimeUtils;
 import com.alaa.viewmodels.ActivityModel;
 import com.google.android.gms.maps.model.LatLng;
@@ -125,10 +127,11 @@ public class DriverPageFragment extends AnimationFragment {
 
     private void fetch(ViewModelState state, ActivityModel model) {
 
+        Application app = getActivity().getApplication();
         model.exe.execute(() -> {
 
             try {
-                CSVReader reader = new CSVReader(new InputStreamReader(getActivity().getAssets().open("fake_schedule.csv")));
+                CSVReader reader = new CSVReader(new InputStreamReader(GetAssets.open(app, "fake_schedule.csv")));
                 List<String[]> entries = reader.readAll();
 
                 Trip[] trips = new Trip[entries.size()];

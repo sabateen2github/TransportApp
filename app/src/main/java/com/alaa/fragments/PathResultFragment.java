@@ -18,6 +18,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
@@ -74,7 +75,17 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewModel.Bounds, (int) (150 * getResources().getDisplayMetrics().density)));
         List<FindPathModel.StepSteroid> features = viewModel.steps.getValue();
         for (FindPathModel.StepSteroid feature : features) {
-            mMap.addMarker(new MarkerOptions().position(new LatLng(feature.feature.geometry.coordinates[1], feature.feature.geometry.coordinates[0])));
+            Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(feature.feature.geometry.coordinates[1], feature.feature.geometry.coordinates[0])));
+
+            StringBuilder builder = new StringBuilder();
+            for (int u = 0; u < feature.step.receive.length; u++) {
+                builder.append(feature.step.receive[u]);
+                builder.append("\n");
+            }
+            marker.setTitle("الخطوط");
+            marker.setSnippet(builder.toString());
+            marker.showInfoWindow();
+
         }
         mMap.addMarker(new MarkerOptions().position(viewModel.From).alpha(0.5f).title("بداية"));
         mMap.addMarker(new MarkerOptions().position(viewModel.To).alpha(0.5f).title("نهاية"));
