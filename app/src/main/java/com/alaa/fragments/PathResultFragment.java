@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -77,7 +76,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
             TransitionManager.beginDelayedTransition((ViewGroup) view);
             laodingContainer.setVisibility(View.GONE);
             view.findViewById(R.id.steps_navigator_container).setVisibility(View.VISIBLE);
-            updateText();
+            updateInfoWindow();
             if (viewModel.current_step == 0) {
                 getView().findViewById(R.id.find_path_previous).setEnabled(false);
             } else if (viewModel.current_step == viewModel.steps.getValue().size() + 1) {
@@ -93,7 +92,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
             getView().findViewById(R.id.find_path_next).setEnabled(false);
         }
         viewModel.current_step++;
-        updateText();
+        updateInfoWindow();
         updateCamera(true);
     }
 
@@ -106,21 +105,11 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
             getView().findViewById(R.id.find_path_next).setEnabled(true);
         }
         viewModel.current_step--;
-        updateText();
+        updateInfoWindow();
         updateCamera(true);
     }
 
-    private void updateText() {
-
-        if (viewModel.current_step == 0) {
-            ((TextView) getView().findViewById(R.id.find_path_current)).setText("موقع الحالي");
-        } else if (viewModel.current_step == viewModel.steps.getValue().size() + 1) {
-            ((TextView) getView().findViewById(R.id.find_path_current)).setText("وجهتك النهائية");
-        } else if (viewModel.current_step == viewModel.steps.getValue().size()) {
-            ((TextView) getView().findViewById(R.id.find_path_current)).setText("اخر نقطة نزول");
-        } else {
-            ((TextView) getView().findViewById(R.id.find_path_current)).setText("" + viewModel.current_step);
-        }
+    private void updateInfoWindow() {
 
         mMarkers.get(viewModel.current_step).showInfoWindow();
     }
