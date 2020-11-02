@@ -69,6 +69,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
 
             if (mMap != null) {
                 updateMapBasedOnResult();
+                updateInfoWindow();
             } else {
                 mPendingUpdate = true;
 
@@ -76,7 +77,6 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
             TransitionManager.beginDelayedTransition((ViewGroup) view);
             laodingContainer.setVisibility(View.GONE);
             view.findViewById(R.id.steps_navigator_container).setVisibility(View.VISIBLE);
-            updateInfoWindow();
             if (viewModel.current_step == 0) {
                 getView().findViewById(R.id.find_path_previous).setEnabled(false);
             } else if (viewModel.current_step == viewModel.steps.getValue().size() + 1) {
@@ -180,6 +180,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
         mMap = googleMap;
         if (mPendingUpdate) {
             updateMapBasedOnResult();
+            updateInfoWindow();
             mPendingUpdate = false;
         }
     }
