@@ -79,7 +79,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
             view.findViewById(R.id.steps_navigator_container).setVisibility(View.VISIBLE);
             if (viewModel.current_step == 0) {
                 getView().findViewById(R.id.find_path_previous).setEnabled(false);
-            } else if (viewModel.current_step == viewModel.steps.getValue().size() + 1) {
+            } else if (viewModel.current_step == mMarkers.size() - 1) {
                 getView().findViewById(R.id.find_path_next).setEnabled(false);
             }
         });
@@ -88,7 +88,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
     private void nextClicked() {
         if (viewModel.current_step == 0) {
             getView().findViewById(R.id.find_path_previous).setEnabled(true);
-        } else if (viewModel.current_step == viewModel.steps.getValue().size()) {
+        } else if (viewModel.current_step == mMarkers.size() - 2) {
             getView().findViewById(R.id.find_path_next).setEnabled(false);
         }
         viewModel.current_step++;
@@ -101,7 +101,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
         if (viewModel.current_step == 1) {
             getView().findViewById(R.id.find_path_previous).setEnabled(false);
 
-        } else if (viewModel.current_step == viewModel.steps.getValue().size() + 1) {
+        } else if (viewModel.current_step == mMarkers.size() - 1) {
             getView().findViewById(R.id.find_path_next).setEnabled(true);
         }
         viewModel.current_step--;
@@ -118,9 +118,9 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
         CameraUpdate update = null;
         if (viewModel.current_step == 0) {
             update = CameraUpdateFactory.newLatLngZoom(viewModel.From, 16);
-        } else if (viewModel.current_step == viewModel.steps.getValue().size() + 1) {
+        } else if (viewModel.current_step == mMarkers.size() - 1) {
             update = CameraUpdateFactory.newLatLngZoom(viewModel.To, 16);
-        } else if (viewModel.current_step == viewModel.steps.getValue().size()) {
+        } else if (viewModel.current_step == mMarkers.size() - 2) {
             LatLng latlng = new LatLng(viewModel.steps.getValue().get(viewModel.current_step - 1).feature.geometry.coordinates[1], viewModel.steps.getValue().get(viewModel.current_step - 1).feature.geometry.coordinates[0]);
             update = CameraUpdateFactory.newLatLngZoom(latlng, 16);
         } else {
@@ -149,7 +149,6 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
 
     private void updateMapBasedOnResult() {
 
-
         mMarkers.add(mMap.addMarker(new MarkerOptions().position(viewModel.From).alpha(0.5f).title("موقعك الحالي")));
         List<FindPathModel.StepSteroid> features = viewModel.steps.getValue();
         int i = 0;
@@ -163,7 +162,20 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
         }
         mMarkers.add(mMap.addMarker(new MarkerOptions().position(viewModel.To).alpha(0.5f).title("وجهتك المطلوية")));
 
-
+        mMap.setOnMarkerClickListener((marker -> {
+            viewModel.current_step = mMarkers.indexOf(marker);
+            if (viewModel.current_step == 0) {
+                getView().findViewById(R.id.find_path_previous).setEnabled(false);
+                getView().findViewById(R.id.find_path_next).setEnabled(true);
+            } else if (viewModel.current_step == mMarkers.size() - 1) {
+                getView().findViewById(R.id.find_path_previous).setEnabled(true);
+                getView().findViewById(R.id.find_path_next).setEnabled(false);
+            } else {
+                getView().findViewById(R.id.find_path_previous).setEnabled(true);
+                getView().findViewById(R.id.find_path_next).setEnabled(true);
+            }
+            return false;
+        }));
         mMap.setOnInfoWindowClickListener((marker) -> {
             if (marker.getTag() == null || !(marker.getTag() instanceof FindPathModel.StepSteroid))
                 return;
