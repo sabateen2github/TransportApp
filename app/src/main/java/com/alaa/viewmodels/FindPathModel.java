@@ -10,7 +10,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -34,7 +33,11 @@ public class FindPathModel extends ViewModel {
     public volatile LatLng To = new LatLng(31.97164183082986d, 35.833652222827524d);
     public volatile LatLng From = new LatLng(31.97164183082986d, 35.833652222827524d);
     public MutableLiveData<List<StepSteroid>> steps = new MutableLiveData<>();
-    public LatLngBounds Bounds;
+
+    //used for prev-next navigator Feature
+    public int current_step;
+    // used for bottom sheet fragment
+    public StepSteroid selectedFeature;
 
     @MainThread
     public void refresh(ActivityModel activityModel, Application context, LifecycleOwner owner) {
@@ -162,16 +165,15 @@ public class FindPathModel extends ViewModel {
                         String[] pair = names[x].substring(0, names[x].indexOf(".response")).split("-");
                         names[x] = MessageFormat.format("من {0} الى {1}", pair[0], pair[1]);
                     }
+                    features.get(i).stepIndex = i + 1;
                 }
 
                 if (From == _From && To == _To) {
 
-
-                    LatLngBounds.Builder builder = LatLngBounds.builder();
-                    for (StepSteroid feature : features) {
-                        builder.include(new LatLng(feature.feature.geometry.coordinates[1], feature.feature.geometry.coordinates[0]));
+                    current_step = 0;
+                    for (int i = 1; i < features.size(); i++) {
+                        features.get(i - 1).step.receive = features.get(i).step.receive;
                     }
-                    Bounds = builder.build();
                     steps.postValue(features);
                 }
             } else {
@@ -216,6 +218,7 @@ public class FindPathModel extends ViewModel {
     public static class StepSteroid {
         public ActivityModel.PointsStructure.Feature feature;
         public Step step;
+        public int stepIndex;
     }
 
 }

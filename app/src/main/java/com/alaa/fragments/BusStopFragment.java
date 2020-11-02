@@ -2,6 +2,7 @@ package com.alaa.fragments;
 
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.alaa.utils.AnimationFragment;
 import com.alaa.utils.getTimeUtils;
 import com.alaa.viewmodels.ActivityModel;
 import com.alaa.viewmodels.BusStopViewModel;
+import com.alaa.viewmodels.FindPathModel;
 import com.alaa.viewmodels.PassengerState;
 
 import java.text.MessageFormat;
@@ -154,7 +156,7 @@ public class BusStopFragment extends AnimationFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        ViewModelProvider provider = new ViewModelProvider(getActivity());
+        ViewModelProvider provider = new ViewModelProvider(requireActivity());
         ActivityModel activityModel = provider.get(ActivityModel.class);
 
         model = provider.get(BusStopViewModel.class);
@@ -164,17 +166,35 @@ public class BusStopFragment extends AnimationFragment {
         });
 
 
-        if (model.properties.getValue() == null) {
+        boolean isBottomSheetFragment = false;
+        if (getArguments() != null)
+            isBottomSheetFragment = getArguments().getBoolean(BottomSheetFragment.BusStopArgumentKey);
+
+        if (!isBottomSheetFragment && model.properties.getValue() == null) {
             model.update(provider.get(PassengerState.class).state.getValue().selectedBusStop, activityModel, getActivity().getApplication());
 
-        } else if (provider.get(PassengerState.class).state.getValue().selectedBusStop == model.properties.getValue().mFeature) {
+        } else if (isBottomSheetFragment && model.properties.getValue() == null) {
+            model.update(provider.get(FindPathModel.class).selectedFeature.feature, activityModel, getActivity().getApplication());
+
+        } else if (!isBottomSheetFragment && provider.get(PassengerState.class).state.getValue().selectedBusStop == model.properties.getValue().mFeature) {
             //do nothing or refresh so recycler view does not go full screen
             //refresh (update : did not work :<)
             //model.properties.setValue(null);
             //model.update(provider.get(PassengerState.class).state.getValue().selectedBusStop, activityModel, getActivity().getApplication());
-        } else {
+        } else if (!isBottomSheetFragment) {
+            Log.e("Alaa", "1 is called");
             model.properties.setValue(null);
             model.update(provider.get(PassengerState.class).state.getValue().selectedBusStop, activityModel, getActivity().getApplication());
+        } else if (isBottomSheetFragment && provider.get(FindPathModel.class).selectedFeature.feature == model.properties.getValue().mFeature) {
+            //do nothing or refresh so recycler view does not go full screen
+            //refresh (update : did not work :<)
+            //model.properties.setValue(null);
+            //model.update(provider.get(PassengerState.class).state.getValue().selectedBusStop, activityModel, getActivity().getApplication());
+
+        } else {
+            Log.e("Alaa", "2 is called");
+            model.properties.setValue(null);
+            model.update(provider.get(FindPathModel.class).selectedFeature.feature, activityModel, getActivity().getApplication());
         }
 
         model.properties.observe(getViewLifecycleOwner(), (item) -> {
