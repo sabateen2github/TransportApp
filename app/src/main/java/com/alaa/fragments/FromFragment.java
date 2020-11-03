@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.transportapp.MapsActivity;
 import com.alaa.transportapp.R;
+import com.alaa.utils.AlphaAnimator;
 import com.alaa.utils.AnimationFragment;
 import com.alaa.viewmodels.ActivityModel;
 import com.alaa.viewmodels.FindPathModel;
@@ -71,6 +72,12 @@ public class FromFragment extends AnimationFragment implements OnMapReadyCallbac
 
         });
 
+
+        if (savedInstanceState == null) {
+            View app_bar = view.findViewById(R.id.app_bar);
+            AlphaAnimator runnable = new AlphaAnimator(app_bar);
+            runnable.run();
+        }
     }
 
     private void handleUpdateMap(LatLng selection, LatLngBounds viewPort) {

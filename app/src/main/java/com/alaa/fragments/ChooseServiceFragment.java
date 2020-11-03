@@ -35,9 +35,9 @@ public class ChooseServiceFragment extends AnimationFragment {
         ViewGroup requestTripService = view.findViewById(R.id.request_lift_service);
         ViewGroup getRoutesService = view.findViewById(R.id.get_routes_service);
 
-        ((TextView) scheduleService.findViewById(R.id.route_name)).setText("معرفة جدول مواعيد الحافلات");
+        ((TextView) scheduleService.findViewById(R.id.route_name)).setText("جدول مواعيد الحافلات");
         ((TextView) requestTripService.findViewById(R.id.route_name)).setText("طلب توصيلة");
-        ((TextView) getRoutesService.findViewById(R.id.route_name)).setText("معرفة كيفية الوصول الى وجهتك باستخدام حافلات النقل العام");
+        ((TextView) getRoutesService.findViewById(R.id.route_name)).setText("كيف اصل الى وجهتي ؟");
 
         scheduleService.setOnClickListener((v) -> {
             getParentFragmentManager().beginTransaction().replace(android.R.id.content, new PassengerMainFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();

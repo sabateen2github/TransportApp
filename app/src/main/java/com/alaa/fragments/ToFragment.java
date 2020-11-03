@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.transportapp.MapsActivity;
 import com.alaa.transportapp.R;
+import com.alaa.utils.AlphaAnimator;
 import com.alaa.utils.AnimationFragment;
 import com.alaa.viewmodels.FindPathModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -60,6 +61,12 @@ public class ToFragment extends AnimationFragment implements OnMapReadyCallback 
         view.findViewById(R.id.next).setOnClickListener((v) -> {
             getParentFragmentManager().beginTransaction().replace(android.R.id.content, new FromFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
         });
+
+        if (savedInstanceState == null) {
+            View app_bar = view.findViewById(R.id.app_bar);
+            AlphaAnimator runnable = new AlphaAnimator(app_bar);
+            runnable.run();
+        }
     }
 
     private void handleUpdateMap(LatLng selection, LatLngBounds viewPort) {

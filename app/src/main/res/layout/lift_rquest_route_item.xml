@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="64dp"
     android:layout_marginTop="8dp"
-    android:background="?android:attr/selectableItemBackground"
-    android:foreground="@drawable/route_passenger_request_item">
+    android:background="@drawable/route_passenger_request_item"
+    android:foreground="?android:attr/selectableItemBackground">
 
     <TextView
         android:id="@+id/route_name"

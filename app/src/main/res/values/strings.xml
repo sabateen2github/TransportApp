@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">TransportApp</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="app_name">واصل</string>
+    <string name="title_activity_maps">واصل</string>
     <string name="passenger_action_text_req_sent">عرض حالة الطلب</string>
     <string name="passenger_action_text_req_unsent">طلب توصيلة</string>
     <string name="bus_stop_selected">عرض جدول رحلات النقطة المختارة</string>
