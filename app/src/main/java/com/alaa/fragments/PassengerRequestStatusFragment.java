@@ -102,9 +102,7 @@ public class PassengerRequestStatusFragment extends AnimationFragment {
                     case R.id.advanceTime:
                         ((MapsActivity) requireActivity()).runSimulation();
                         return true;
-                    case R.id.about:
-                        ((MapsActivity) requireActivity()).handleAboutClick();
-                        return true;
+
                 }
 
                 return false;
