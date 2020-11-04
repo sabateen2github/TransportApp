@@ -39,6 +39,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="الرحلة الحالية"
+                android:textColor="#222222"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -76,6 +77,7 @@
             android:layout_marginEnd="16dp"
             android:gravity="center"
             android:text="قم بطلب رحلة جديدة بعد انتهائك من رحلتك الحالية وايصال جميع الركاب الى وجهاتهم "
+            android:textColor="#2B2B2B"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -90,6 +92,7 @@
             android:layout_marginEnd="24dp"
             android:gravity="center"
             android:text="سوف يتم تحديد رحلتك الجديدة بناء على موقعك الحالي وكمية الطلب في كل نقطة توقف وفيما اذا كانت هذه الرحلة الجديدة ستؤدي الى خسارة وفي حال كانت تؤدي الى خسارة سيتم تحديد امكانية تعويض هذه الخسارة مستقبلا برحلات تعوض عن هذه الخسارة او اذا ما انك قد قمت في السابق بتنفيذ رحلات مربحة تجعلك رابحا اكثر من غيرك من السائقين الاخرين "
+            android:textColor="#2B2B2B"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

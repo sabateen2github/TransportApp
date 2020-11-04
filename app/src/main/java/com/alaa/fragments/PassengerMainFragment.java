@@ -2,6 +2,7 @@ package com.alaa.fragments;
 
 
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,12 +53,12 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
         if (state.selectedBusStop == null) {
             selectedBusStop.setText(R.string.bus_stop_deselected);
             selectedBusStop.setTextColor(getResources().getColor(R.color.black, getActivity().getTheme()));
-            selectedBusStop.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.silver, getActivity().getTheme())));
+            selectedBusStop.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white, getActivity().getTheme())));
             selectedBusStop.setOnClickListener(null);
         } else {
             selectedBusStop.setText(R.string.bus_stop_selected);
             selectedBusStop.setTextColor(getResources().getColor(R.color.white, getActivity().getTheme()));
-            selectedBusStop.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.teal_700, getActivity().getTheme())));
+            selectedBusStop.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FF4CAF50")));
             selectedBusStop.setOnClickListener(v -> {
                 //show schedule of the selected busStop
                 getParentFragmentManager().beginTransaction().replace(android.R.id.content, new BusStopFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();

@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/advanceTime"
-        android:title="تقديم الوقت لغابات المحاكاة" />
+        android:title="تقديم الوقت لغايات المحاكاة" />
     <item
         android:id="@+id/about"
         android:title="عن التطبيق" />

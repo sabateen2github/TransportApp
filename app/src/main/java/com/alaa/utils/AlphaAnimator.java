@@ -32,7 +32,7 @@ public class AlphaAnimator {
                 if (System.currentTimeMillis() - elapsed >= 5000) {
                     return;
                 }
-                mView.animate().alpha(0.9f).setListener(new AnimatorListenerAdapter() {
+                mView.animate().alpha(0.75f).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationCancel(Animator animation) {
                         super.onAnimationCancel(animation);
