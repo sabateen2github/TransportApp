@@ -41,7 +41,8 @@
                 android:gravity="center"
                 android:paddingStart="16dp"
                 android:paddingEnd="4dp"
-                android:text="أقرب نقطة توقف" />
+                android:text="أقرب نقطة توقف"
+                android:textStyle="bold" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/passenger_current_position"
@@ -56,20 +57,6 @@
 
     </androidx.cardview.widget.CardView>
 
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/passenger_show_schedule"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="16dp"
-        android:backgroundTint="#FFFFFF"
-        android:text="عرض جدول رحلات النقطة المختارة"
-        android:textColor="#3E3E3E"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/passenger_map"
-        app:layout_constraintTop_toBottomOf="@+id/app_bar" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/app_bar"
@@ -99,7 +86,7 @@
                 android:clickable="true"
                 android:scaleX="0.5"
                 android:scaleY="0.5"
-                app:layout_constraintEnd_toEndOf="@+id/textView7"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_baseline_search_24" />
 
@@ -123,7 +110,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="16dp"
                 android:gravity="center"
-                android:text="قم بتكبير الخريطة حتى تظهر نقاط التوقف كما في الرمز الذي في الاعلى"
+                android:text="اضغط على إحدى نقاط التوقف"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -131,15 +118,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/imageView3"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_baseline_location_on_24" />
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="محطات الإنتظار"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/passenger_search"
+                app:layout_constraintStart_toEndOf="@+id/passenger_back"
+                app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

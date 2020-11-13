@@ -9,11 +9,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.transportapp.R;
 import com.alaa.utils.AnimationFragment;
-import com.alaa.viewmodels.PassengerRequestModel;
 
 public class ChooseServiceFragment extends AnimationFragment {
 
@@ -32,26 +30,16 @@ public class ChooseServiceFragment extends AnimationFragment {
         });
 
         ViewGroup scheduleService = view.findViewById(R.id.bus_stop_schedule_service);
-        ViewGroup requestTripService = view.findViewById(R.id.request_lift_service);
         ViewGroup getRoutesService = view.findViewById(R.id.get_routes_service);
 
-        ((TextView) scheduleService.findViewById(R.id.route_name)).setText("جدول مواعيد الحافلات");
-        ((TextView) requestTripService.findViewById(R.id.route_name)).setText("طلب توصيلة");
-        ((TextView) getRoutesService.findViewById(R.id.route_name)).setText("كيف أصل إلى وجهتي ؟");
+        ((TextView) scheduleService.findViewById(R.id.get_schedule_text)).setText("مواعيد الحافلات");
+        ((TextView) getRoutesService.findViewById(R.id.get_route_text)).setText("كيف أصل إلى وجهتي ؟");
 
         scheduleService.setOnClickListener((v) -> {
             getParentFragmentManager().beginTransaction().replace(android.R.id.content, new PassengerMainFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
         });
 
-        requestTripService.setOnClickListener((v) -> {
 
-            ViewModelProvider provider = new ViewModelProvider(requireActivity());
-            if (provider.get(PassengerRequestModel.class).status.getValue() == PassengerRequestModel.STATUS_NOT_SENT)
-                getParentFragmentManager().beginTransaction().replace(android.R.id.content, new PassengerRequestFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
-            else
-                getParentFragmentManager().beginTransaction().replace(android.R.id.content, new PassengerRequestStatusFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
-
-        });
         getRoutesService.setOnClickListener((v) -> {
             getParentFragmentManager().beginTransaction().replace(android.R.id.content, new ToFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
         });

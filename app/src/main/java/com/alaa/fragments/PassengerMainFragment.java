@@ -1,8 +1,6 @@
 package com.alaa.fragments;
 
 
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +8,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -18,7 +15,9 @@ import androidx.lifecycle.ViewModelProvider;
 import com.alaa.transportapp.MapsActivity;
 import com.alaa.transportapp.R;
 import com.alaa.utils.AnimationFragment;
+import com.alaa.utils.MarkerUtils;
 import com.alaa.viewmodels.ActivityModel;
+import com.alaa.viewmodels.BusStopViewModel;
 import com.alaa.viewmodels.PassengerState;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,6 +36,7 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
 
     private PassengerState stateModel;
     private GoogleMap mMap;
+    private ActivityModel activityModel;
 
     @Nullable
     @Override
@@ -44,48 +44,21 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
         return inflater.inflate(R.layout.passenger_main_layout, container, false);
     }
 
-    private void updateBusStopButtton(View view, PassengerState.State state) {
-
-
-        AppCompatButton selectedBusStop = view.findViewById(R.id.passenger_show_schedule);
-
-
-        if (state.selectedBusStop == null) {
-            selectedBusStop.setText(R.string.bus_stop_deselected);
-            selectedBusStop.setTextColor(getResources().getColor(R.color.black, getActivity().getTheme()));
-            selectedBusStop.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white, getActivity().getTheme())));
-            selectedBusStop.setOnClickListener(null);
-        } else {
-            selectedBusStop.setText(R.string.bus_stop_selected);
-            selectedBusStop.setTextColor(getResources().getColor(R.color.white, getActivity().getTheme()));
-            selectedBusStop.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FF4CAF50")));
-            selectedBusStop.setOnClickListener(v -> {
-                //show schedule of the selected busStop
-                getParentFragmentManager().beginTransaction().replace(android.R.id.content, new BusStopFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
-            });
-        }
-
-
-    }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
 
-        long elapes = System.currentTimeMillis();
-
         ViewModelProvider provider = new ViewModelProvider(requireActivity());
         stateModel = provider.get(PassengerState.class);
         PassengerState.State state = stateModel.state.getValue();
-
+        activityModel = provider.get(ActivityModel.class);
 
         AppCompatImageView arrowBack = view.findViewById(R.id.passenger_back);
         arrowBack.setOnClickListener(v -> {
             getActivity().onBackPressed();
         });
 
-        updateBusStopButtton(view, state);
         View goToMyLocation = view.findViewById(R.id.passenger_current_bus_stop);
 
         goToMyLocation.setOnClickListener(v -> {
@@ -103,7 +76,7 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
 
                     ActivityModel.PointsStructure.Feature feature = model.index.getValue().getNearest(loc.latitude, loc.longitude);
                     LatLng busStop_loc = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-                    model.mainHandelr.post(this, () -> {
+                    model.mainHandelr.post(getViewLifecycleOwner(), () -> {
                         stateModel.setCurrentLocation(loc);
                         stateModel.setMapCenter(busStop_loc);
                         stateModel.setMapZoom(16);
@@ -130,7 +103,6 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
         stateModel.state.observe(getViewLifecycleOwner(), (newState) -> {
             if (mMap != null) {
 
-                updateBusStopButtton(getView(), state);
 
                 if (stateModel.state.getValue().searchViewPort == null) {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(stateModel.state.getValue().mapCenter, stateModel.state.getValue().mapZoom));
@@ -162,10 +134,12 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
 
     private void continueBuidlingMarkerCluster() {
 
+        ViewModelProvider provider = new ViewModelProvider(requireActivity());
         ClusterManager<MarkerItem> manager = new ClusterManager<>(getActivity(), mMap);
         manager.setOnClusterItemInfoWindowClickListener((item) -> {
             //show schedule of the selected busStop
-            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new BusStopFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
+            provider.get(BusStopViewModel.class).SelectedFeature = stateModel.state.getValue().selectedBusStop;
+            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new ChooseRouteFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
         });
         mMap.setOnCameraIdleListener(manager);
         mMap.setOnMarkerClickListener(manager);
@@ -197,6 +171,7 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
             CameraPosition pos = mMap.getCameraPosition();
             stateModel.state.getValue().mapZoom = pos.zoom;
             stateModel.state.getValue().mapCenter = pos.target;
+
         });
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(stateModel.state.getValue().mapCenter, stateModel.state.getValue().mapZoom));
         final ActivityModel model = new ViewModelProvider(getActivity()).get(ActivityModel.class);
@@ -216,6 +191,10 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
                 continueBuidlingMarkerCluster();
             });
         }
+
+
+        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, mMap, requireActivity());
+
     }
 
 
@@ -240,13 +219,13 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
         @Nullable
         @Override
         public String getTitle() {
-            return "نقطة انتظار ";
+            return "نقطة ركوب حافلات ";
         }
 
         @Nullable
         @Override
         public String getSnippet() {
-            return "اضغط لعرض جدول الرحلات";
+            return "إضغط هنا         ";
         }
     }
 }

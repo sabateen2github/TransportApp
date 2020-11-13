@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,15 +23,16 @@ public class MainFragment extends AnimationFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        Button passenger = view.findViewById(R.id.main_passenger_button);
-        Button driver = view.findViewById(R.id.main_driver_button);
+        View passenger = view.findViewById(R.id.main_passenger_button);
+        View driver = view.findViewById(R.id.main_driver_button);
 
+        //main_driver_button
         passenger.setOnClickListener((View v) -> {
-            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new ChooseServiceFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
+            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new ChooseServiceFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).addToBackStack(null).commit();
         });
 
         driver.setOnClickListener((View v) -> {
-            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new DriverEnterIDFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
+            getParentFragmentManager().beginTransaction().replace(android.R.id.content, new DriverEnterIDFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).addToBackStack(null).commit();
         });
 
     }

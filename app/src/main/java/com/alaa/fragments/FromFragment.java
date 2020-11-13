@@ -14,8 +14,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.transportapp.MapsActivity;
 import com.alaa.transportapp.R;
-import com.alaa.utils.AlphaAnimator;
 import com.alaa.utils.AnimationFragment;
+import com.alaa.utils.MarkerUtils;
 import com.alaa.viewmodels.ActivityModel;
 import com.alaa.viewmodels.FindPathModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -33,6 +33,9 @@ public class FromFragment extends AnimationFragment implements OnMapReadyCallbac
     private GoogleMap mMap;
     private FindPathModel viewModel;
     private Marker marker;
+    private SupportMapFragment fragment;
+    private ActivityModel activityModel;
+
 
     @Nullable
     @Override
@@ -42,11 +45,12 @@ public class FromFragment extends AnimationFragment implements OnMapReadyCallbac
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        viewModel = new ViewModelProvider(requireActivity()).get(FindPathModel.class);
+        ViewModelProvider provider = new ViewModelProvider(requireActivity());
+        viewModel = provider.get(FindPathModel.class);
+        activityModel = provider.get(ActivityModel.class);
 
-        SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(this);
-
 
         view.findViewById(R.id.arrow_back).setOnClickListener((v) -> {
             getActivity().onBackPressed();
@@ -74,9 +78,9 @@ public class FromFragment extends AnimationFragment implements OnMapReadyCallbac
 
 
         if (savedInstanceState == null) {
-            View app_bar = view.findViewById(R.id.app_bar);
-            AlphaAnimator runnable = new AlphaAnimator(app_bar);
-            runnable.run();
+            //View app_bar = view.findViewById(R.id.app_bar);
+            //AlphaAnimator runnable = new AlphaAnimator(app_bar);
+            //runnable.run();
         }
     }
 
@@ -100,6 +104,7 @@ public class FromFragment extends AnimationFragment implements OnMapReadyCallbac
 
     }
 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         if (mMap != null) return;
@@ -116,5 +121,9 @@ public class FromFragment extends AnimationFragment implements OnMapReadyCallbac
             viewModel.From = pos.target;
 
         });
+
+
+        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, mMap, requireActivity());
+
     }
 }

@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -22,6 +23,8 @@ import java.util.List;
 
 public class BusStopViewModel extends ViewModel {
     public MutableLiveData<Properties> properties;
+    public ActivityModel.PointsStructure.Feature SelectedFeature;
+    public String Filter;
 
 
     public BusStopViewModel() {
@@ -52,6 +55,7 @@ public class BusStopViewModel extends ViewModel {
 
     }
 
+
     public boolean updateByFilter(Properties.FromTo chosen, ViewModelStoreOwner activity) {
         if (properties.getValue().chosen == chosen) {
             return false;
@@ -74,7 +78,7 @@ public class BusStopViewModel extends ViewModel {
         return true;
     }
 
-    public boolean update(ActivityModel.PointsStructure.Feature feature, ActivityModel activityModel, Application application) {
+    public boolean update(ActivityModel.PointsStructure.Feature feature, ActivityModel activityModel, FragmentActivity activity) {
 
         activityModel.exe.execute(() -> {
 
@@ -84,8 +88,23 @@ public class BusStopViewModel extends ViewModel {
                 e.printStackTrace();
             }
             Properties prop;
-            prop = Properties.getProperties(application, feature);
+            prop = Properties.getProperties(activity.getApplication(), feature);
+
+            if (Filter != null) {
+
+                Properties.FromTo chosen = null;
+                for (int i = 0; i < prop.names.length; i++) {
+
+                    if (prop.names[i].equals(Filter)) {
+                        chosen = prop.fromTos[i + 1];
+                    }
+                }
+                prop.chosen = chosen;
+                prop.refresh();
+                Filter = null;
+            }
             properties.postValue(prop);
+
 
         });
         return true;
@@ -172,14 +191,28 @@ public class BusStopViewModel extends ViewModel {
             Calendar calendar = Calendar.getInstance();
             int hours = calendar.get(Calendar.HOUR_OF_DAY);
             int minutes = calendar.get(Calendar.MINUTE);
+
+
             int start = 0;
             for (int i = 0; i < chosen_schedule.length; i++) {
-                if (chosen_schedule[i].hours < hours) continue;
+                if (chosen_schedule[i].hours < hours) {
+                    start++;
+                    continue;
+                }
                 if (chosen_schedule[i].hours == hours) {
-                    if (minutes <= chosen_schedule[i].minutes) {
-                        start = i;
-                        break;
+                    if (minutes > chosen_schedule[i].minutes) {
+                        start++;
+                        continue;
+                    } else {
+                        if (minutes == chosen_schedule[i].minutes) {
+                            start++;
+                            break;
+                        } else {
+                            break;
+                        }
                     }
+                } else {
+                    break;
                 }
             }
 
@@ -189,7 +222,6 @@ public class BusStopViewModel extends ViewModel {
                 chosen_schedule[i].getID();// just to initialize the hash calculation in background so to save some lags
             }
             chosen_schedule = sc;
-
 
             isRefreshing = false;
             refreshTime();

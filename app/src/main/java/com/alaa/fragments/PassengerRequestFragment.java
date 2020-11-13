@@ -52,7 +52,7 @@ public class PassengerRequestFragment extends AnimationFragment {
                 ActivityModel.PointsStructure.Feature nearest = activityModel.index.getValue().getNearest(center.latitude, center.longitude);
                 BusStopViewModel.Properties properties = BusStopViewModel.Properties.getProperties(application, nearest);
 
-                activityModel.mainHandelr.post(this, () -> {
+                activityModel.mainHandelr.post(getViewLifecycleOwner(), () -> {
                     TransitionManager.beginDelayedTransition((ViewGroup) view);
                     ViewGroup container = ((ViewGroup) root.getChildAt(0));
                     for (int i = 0; i < container.getChildCount(); i++) {

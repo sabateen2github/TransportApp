@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.transportapp.R;
+import com.alaa.viewmodels.BusStopViewModel;
 import com.alaa.viewmodels.FindPathModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
@@ -31,17 +32,19 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
     }
 
     private static final String[] array = {
-            "الخطوة الأولى",
-            "الخطوة الثانية",
-            "الخطوة الثالثة",
-            "الخطوة الرابعة",
-            "الخطوة الخامسة",
+            "نقطة ركوب الحافلة الأولى",
+            "نقطة ركوب الحافلة الثانية",
+            "نقطة ركوب الحافلة الثالثة",
+            "نقطة ركوب الحافلة الرابعة",
+            "نقطة ركوب الحافلة الخامسة",
     };
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mViewModel = new ViewModelProvider(requireActivity()).get(FindPathModel.class);
 
+
+        ViewModelProvider provider = new ViewModelProvider(requireActivity());
         if (mViewModel.selectedFeature.stepIndex == mViewModel.steps.getValue().size()) {
 
             ((TextView) view.findViewById(R.id.find_path_step_id)).setText("آخر نقطة نزول");
@@ -65,6 +68,7 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
             args.putBoolean(BusStopArgumentKey, true);
             fragment.setArguments(args);
             dismiss();
+            provider.get(BusStopViewModel.class).SelectedFeature = mViewModel.selectedFeature.feature;
             getParentFragmentManager().beginTransaction().replace(android.R.id.content, fragment).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
         });
 

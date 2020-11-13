@@ -122,7 +122,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="16dp"
                 android:gravity="center"
-                android:text="قم بالضغط على نقطة الانتظار المطلوبة لمعرفة خط نقل الحافلة التي يجب ركوبها عند كل نقطة انتظار و للوصول الى وجهتك قم بركوب الحافلة عند كل نقطة انتظار حتى النقطة التالية  "
+                android:text="قم بركوب الحافلات حسب الترتيب للوصول الى وجهتك"
                 android:textColor="#000000"
                 android:textSize="14sp"
                 android:textStyle="bold"

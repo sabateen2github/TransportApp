@@ -2,12 +2,9 @@ package com.alaa.fragments;
 
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,8 +20,6 @@ import com.alaa.utils.AnimationFragment;
 import com.alaa.utils.getTimeUtils;
 import com.alaa.viewmodels.ActivityModel;
 import com.alaa.viewmodels.BusStopViewModel;
-import com.alaa.viewmodels.FindPathModel;
-import com.alaa.viewmodels.PassengerState;
 
 import java.text.MessageFormat;
 
@@ -39,19 +34,6 @@ public class BusStopFragment extends AnimationFragment {
         return inflater.inflate(R.layout.bus_stop_layout, container, false);
     }
 
-
-    private void collapseFilter(boolean call_begin_transition, BusStopViewModel.Properties.FromTo chosen) {
-        ViewGroup group = (ViewGroup) ((ViewGroup) getView().findViewById(R.id.filter_card)).getChildAt(0);
-
-        if (call_begin_transition) {
-            TransitionManager.beginDelayedTransition(getView().findViewById(R.id.bus_stop_nav_container));
-        }
-        group.getChildAt(0).setVisibility(View.GONE);
-        group.getChildAt(1).setVisibility(View.VISIBLE);
-        ((TextView) group.findViewById(R.id.routes_filter_text)).setText(chosen.toString());
-        View touchHolder = getView().findViewById(R.id.filter_touch_holder);
-        touchHolder.setVisibility(View.GONE);
-    }
 
     private void updateTrackTime() {
 
@@ -68,51 +50,17 @@ public class BusStopFragment extends AnimationFragment {
     }
 
 
-    private void handleRouteFilterClickCollapsed() {
-
-        ViewGroup group = (ViewGroup) ((ViewGroup) getView().findViewById(R.id.filter_card)).getChildAt(0);
-        View touchHolder = getView().findViewById(R.id.filter_touch_holder);
-        touchHolder.setVisibility(View.VISIBLE);
-
-        TransitionManager.beginDelayedTransition(getView().findViewById(R.id.bus_stop_nav_container));
-        group.getChildAt(0).setVisibility(View.VISIBLE);
-        group.getChildAt(1).setVisibility(View.GONE);
-
-
-        touchHolder.setOnClickListener((v) -> {
-            TransitionManager.beginDelayedTransition(getView().findViewById(R.id.bus_stop_nav_container));
-            touchHolder.setVisibility(View.GONE);
-            group.getChildAt(0).setVisibility(View.GONE);
-            group.getChildAt(1).setVisibility(View.VISIBLE);
-        });
-
-    }
-
-    private void handleRouteFilterRouteChosen(BusStopViewModel.Properties.FromTo chosen) {
-
-
-        //update ViewModel
-        if (model.updateByFilter(chosen, getActivity())) {
-            ((TextView) getView().findViewById(R.id.routes_filter_text)).setText(chosen.toString());
-            prepareForLoading(getView(), false, true);
-        }
-        collapseFilter(true, chosen);
-
-    }
-
     private void initViews(View view) {
 
 
         RecyclerView list = view.findViewById(R.id.bus_stop_schedule);
-        ListView listView = view.findViewById(R.id.filter_list);
-        list.setFocusable(false);
 
 
-        TransitionManager.beginDelayedTransition(view.findViewById(R.id.bus_stop_loaded_container));
+        TransitionManager.beginDelayedTransition((ViewGroup) getView());
+
 
         view.findViewById(R.id.bus_stop_loaded_container).setVisibility(View.VISIBLE);
         view.findViewById(R.id.progressBar).setVisibility(View.GONE);
-        view.findViewById(R.id.filter_card).setVisibility(View.VISIBLE);
 
 
         if (list.getAdapter() == null) {
@@ -121,37 +69,9 @@ public class BusStopFragment extends AnimationFragment {
         } else {
             list.getAdapter().notifyDataSetChanged();
         }
-
-
-        view.findViewById(R.id.filter_button).setOnClickListener((v) -> {
-            handleRouteFilterClickCollapsed();
-        });
-
-        if (listView.getAdapter() == null) {
-            listView.setAdapter(new ArrayAdapter<BusStopViewModel.Properties.FromTo>(view.getContext(), R.layout.route_select_item, R.id.route_filter_text, model.properties.getValue().fromTos));
-            listView.setOnItemClickListener((v1, v2, index, id) -> {
-                handleRouteFilterRouteChosen(model.properties.getValue().fromTos[index]);
-            });
-        }
         updateTrackTime();
     }
 
-    private void prepareForLoading(View view, boolean hide_filter, boolean transition) {
-
-        if (transition) {
-            TransitionManager.beginDelayedTransition(view.findViewById(R.id.bus_stop_loaded_container));
-            TransitionManager.beginDelayedTransition(view.findViewById(R.id.bus_stop_nav_container));
-        }
-
-        if (hide_filter) {
-            view.findViewById(R.id.filter_card).setVisibility(View.GONE);
-        } else {
-            view.findViewById(R.id.filter_card).setVisibility(View.VISIBLE);
-        }
-
-        view.findViewById(R.id.bus_stop_loaded_container).setVisibility(View.GONE);
-        view.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -166,6 +86,7 @@ public class BusStopFragment extends AnimationFragment {
         });
 
 
+        /*
         boolean isBottomSheetFragment = false;
         if (getArguments() != null)
             isBottomSheetFragment = getArguments().getBoolean(BottomSheetFragment.BusStopArgumentKey);
@@ -175,7 +96,6 @@ public class BusStopFragment extends AnimationFragment {
 
         } else if (isBottomSheetFragment && model.properties.getValue() == null) {
             model.update(provider.get(FindPathModel.class).selectedFeature.feature, activityModel, getActivity().getApplication());
-
         } else if (!isBottomSheetFragment && provider.get(PassengerState.class).state.getValue().selectedBusStop == model.properties.getValue().mFeature) {
             //do nothing or refresh so recycler view does not go full screen
             //refresh (update : did not work :<)
@@ -195,6 +115,21 @@ public class BusStopFragment extends AnimationFragment {
             Log.e("Alaa", "2 is called");
             model.properties.setValue(null);
             model.update(provider.get(FindPathModel.class).selectedFeature.feature, activityModel, getActivity().getApplication());
+        }
+
+        */
+
+        if (model.properties.getValue() == null) {
+            model.update(model.SelectedFeature, activityModel, requireActivity());
+
+        } else if (model.SelectedFeature == model.properties.getValue().mFeature && model.Filter == null) {
+            //do nothing or refresh so recycler view does not go full screen
+            //refresh (update : did not work :<)
+            //model.properties.setValue(null);
+            //model.update(provider.get(PassengerState.class).state.getValue().selectedBusStop, activityModel, getActivity().getApplication());
+        } else {
+            model.properties.setValue(null);
+            model.update(model.SelectedFeature, activityModel, requireActivity());
         }
 
         model.properties.observe(getViewLifecycleOwner(), (item) -> {

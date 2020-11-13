@@ -184,7 +184,7 @@ public class PassengerRequestStatusFragment extends AnimationFragment {
             String period = getTimeUtils.getTimePeriodString(busStopViewModel.getNearestBusInMinutes(passengerModel.Route_ID, passengerModel.Feature, application));
 
             if (first_time) {
-                activityModel.mainHandelr.post(this, () -> {
+                activityModel.mainHandelr.post(getViewLifecycleOwner(), () -> {
                     TransitionManager.beginDelayedTransition((ViewGroup) getView());
                     ((TextView) getView().findViewById(R.id.req_status_est_time)).setText(period);
                     updateTrackTime(provider, false);

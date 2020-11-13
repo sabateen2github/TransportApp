@@ -12,6 +12,8 @@ import androidx.transition.TransitionManager;
 
 import com.alaa.transportapp.R;
 import com.alaa.utils.AnimationFragment;
+import com.alaa.utils.MarkerUtils;
+import com.alaa.viewmodels.ActivityModel;
 import com.alaa.viewmodels.FindPathModel;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -32,6 +34,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
     private FindPathModel viewModel;
     private boolean mPendingUpdate;
     private List<Marker> mMarkers;
+    private ActivityModel activityModel;
 
     @Nullable
     @Override
@@ -41,7 +44,10 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        viewModel = new ViewModelProvider(requireActivity()).get(FindPathModel.class);
+
+        ViewModelProvider provider = new ViewModelProvider(requireActivity());
+        viewModel = provider.get(FindPathModel.class);
+        activityModel = provider.get(ActivityModel.class);
         SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(this);
         mMarkers = new ArrayList<>();
@@ -140,11 +146,11 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
     }
 
     private static final String[] array = {
-            "الخطوة الأولى",
-            "الخطوة الثانية",
-            "الخطوة الثالثة",
-            "الخطوة الرابعة",
-            "الخطوة الخامسة",
+            "نقطة ركوب الحافلة الأولى",
+            "نقطة ركوب الحافلة الثانية",
+            "نقطة ركوب الحافلة الثالثة",
+            "نقطة ركوب الحافلة الرابعة",
+            "نقطة ركوب الحافلة الخامسة",
     };
 
     private void updateMapBasedOnResult() {
@@ -156,7 +162,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
             Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(feature.feature.geometry.coordinates[1], feature.feature.geometry.coordinates[0])));
             mMarkers.add(marker);
             marker.setTitle(array[i]);
-            marker.setSnippet("اضغط لعرض التفاصيل");
+            marker.setSnippet("إضغط هنا             ");
             marker.setTag(feature);
             i++;
         }
@@ -182,6 +188,14 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
             viewModel.selectedFeature = (FindPathModel.StepSteroid) marker.getTag();
             showBottomSheet();
         });
+        mMap.setOnInfoWindowCloseListener((marker) -> {
+            activityModel.mainHandelr.post(getViewLifecycleOwner(), () -> {
+                int step = mMarkers.indexOf(marker);
+                if (viewModel.current_step == step) {
+                    marker.showInfoWindow();
+                }
+            });
+        });
         updateCamera(false);
 
     }
@@ -195,5 +209,8 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
             updateInfoWindow();
             mPendingUpdate = false;
         }
+
+        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, mMap, requireActivity());
+
     }
 }

@@ -72,7 +72,7 @@
                 android:clickable="true"
                 android:scaleX="0.5"
                 android:scaleY="0.5"
-                app:layout_constraintEnd_toEndOf="@+id/textView7"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_baseline_search_24" />
 
@@ -99,6 +99,7 @@
                 android:text="لتحديد نقطة البدء قم بتحريك الخريطة حتى يصبح الدبوس في مكان نقطة البدء المطلوبة أو قم بالضغط على ايقونة البحث او اضغط على زر موقعك الحالي "
                 android:textSize="14sp"
                 android:textStyle="bold"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -13,8 +13,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.transportapp.MapsActivity;
 import com.alaa.transportapp.R;
-import com.alaa.utils.AlphaAnimator;
 import com.alaa.utils.AnimationFragment;
+import com.alaa.utils.MarkerUtils;
+import com.alaa.viewmodels.ActivityModel;
 import com.alaa.viewmodels.FindPathModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,6 +32,8 @@ public class ToFragment extends AnimationFragment implements OnMapReadyCallback 
     private GoogleMap mMap;
     private FindPathModel viewModel;
     private Marker marker;
+    private SupportMapFragment fragment;
+    private ActivityModel activityModel;
 
     @Nullable
     @Override
@@ -41,9 +44,11 @@ public class ToFragment extends AnimationFragment implements OnMapReadyCallback 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        viewModel = new ViewModelProvider(requireActivity()).get(FindPathModel.class);
 
-        SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        ViewModelProvider provider = new ViewModelProvider(requireActivity());
+        viewModel = provider.get(FindPathModel.class);
+        activityModel = provider.get(ActivityModel.class);
+        fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(this);
 
 
@@ -63,9 +68,9 @@ public class ToFragment extends AnimationFragment implements OnMapReadyCallback 
         });
 
         if (savedInstanceState == null) {
-            View app_bar = view.findViewById(R.id.app_bar);
-            AlphaAnimator runnable = new AlphaAnimator(app_bar);
-            runnable.run();
+            //View app_bar = view.findViewById(R.id.app_bar);
+            //AlphaAnimator runnable = new AlphaAnimator(app_bar);
+            //runnable.run();
         }
     }
 
@@ -76,6 +81,7 @@ public class ToFragment extends AnimationFragment implements OnMapReadyCallback 
         CameraPosition pos = mMap.getCameraPosition();
         marker.setPosition(pos.target);
         viewModel.To = pos.target;
+
     }
 
 
@@ -89,11 +95,16 @@ public class ToFragment extends AnimationFragment implements OnMapReadyCallback 
 
         marker = googleMap.addMarker(new MarkerOptions().visible(true).position(viewModel.To));
 
+
         googleMap.setOnCameraMoveListener(() -> {
             CameraPosition pos = googleMap.getCameraPosition();
+
             marker.setPosition(pos.target);
             viewModel.To = pos.target;
         });
+
+        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, mMap, requireActivity());
+
 
     }
 }

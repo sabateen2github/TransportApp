@@ -33,7 +33,7 @@
                 android:clickable="true"
                 android:scaleX="0.5"
                 android:scaleY="0.5"
-                app:layout_constraintEnd_toEndOf="@+id/textView7"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_baseline_search_24" />
 
@@ -60,6 +60,7 @@
                 android:text="لتحديد وجهتك قم بتحريك الخريطة حتى يصبح الدبوس في مكان وجهتك المطلوبة أو قم بالضغط على ايقونة البحث "
                 android:textSize="14sp"
                 android:textStyle="bold"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
