@@ -7,6 +7,8 @@ import java.util.Calendar;
 
 public class getTimeUtils {
 
+    private static final char[] ENGLISH_NUMBERS = {'\u0030', '\u0031', '\u0032', '\u0033', '\u0034', '\u0035', '\u0036', '\u0037', '\u0038', '\u0039'};
+    private static final char[] ARABIC_NUMBERS = {'\u0660', '\u0661', '\u0662', '\u0663', '\u0664', '\u0665', '\u0666', '\u0667', '\u0668', '\u0669'};
 
     public static String getTimePeriodString(int m) {
 
@@ -24,6 +26,16 @@ public class getTimeUtils {
         } else {
             msg = "لا يوجد حافلات قادمة لهذا اليوم";
         }
+        msg = msg.replace(ENGLISH_NUMBERS[0], ARABIC_NUMBERS[0])
+                .replace(ENGLISH_NUMBERS[1], ARABIC_NUMBERS[1])
+                .replace(ENGLISH_NUMBERS[2], ARABIC_NUMBERS[2])
+                .replace(ENGLISH_NUMBERS[3], ARABIC_NUMBERS[3])
+                .replace(ENGLISH_NUMBERS[4], ARABIC_NUMBERS[4])
+                .replace(ENGLISH_NUMBERS[5], ARABIC_NUMBERS[5])
+                .replace(ENGLISH_NUMBERS[6], ARABIC_NUMBERS[6])
+                .replace(ENGLISH_NUMBERS[7], ARABIC_NUMBERS[7])
+                .replace(ENGLISH_NUMBERS[8], ARABIC_NUMBERS[8])
+                .replace(ENGLISH_NUMBERS[9], ARABIC_NUMBERS[9]);
         return msg;
     }
 
@@ -37,9 +49,27 @@ public class getTimeUtils {
             period = "مساءً";
         }
         if (m < 10) {
-            return MessageFormat.format("{2} {1}:0{0} ", m, hours, period);
+            return MessageFormat.format("{2} {1}:0{0} ", m, hours, period).replace(ENGLISH_NUMBERS[0], ARABIC_NUMBERS[0])
+                    .replace(ENGLISH_NUMBERS[1], ARABIC_NUMBERS[1])
+                    .replace(ENGLISH_NUMBERS[2], ARABIC_NUMBERS[2])
+                    .replace(ENGLISH_NUMBERS[3], ARABIC_NUMBERS[3])
+                    .replace(ENGLISH_NUMBERS[4], ARABIC_NUMBERS[4])
+                    .replace(ENGLISH_NUMBERS[5], ARABIC_NUMBERS[5])
+                    .replace(ENGLISH_NUMBERS[6], ARABIC_NUMBERS[6])
+                    .replace(ENGLISH_NUMBERS[7], ARABIC_NUMBERS[7])
+                    .replace(ENGLISH_NUMBERS[8], ARABIC_NUMBERS[8])
+                    .replace(ENGLISH_NUMBERS[9], ARABIC_NUMBERS[9]);
         } else {
-            return MessageFormat.format("{2} {1}:{0} ", m, hours, period);
+            return MessageFormat.format("{2} {1}:{0} ", m, hours, period).replace(ENGLISH_NUMBERS[0], ARABIC_NUMBERS[0])
+                    .replace(ENGLISH_NUMBERS[1], ARABIC_NUMBERS[1])
+                    .replace(ENGLISH_NUMBERS[2], ARABIC_NUMBERS[2])
+                    .replace(ENGLISH_NUMBERS[3], ARABIC_NUMBERS[3])
+                    .replace(ENGLISH_NUMBERS[4], ARABIC_NUMBERS[4])
+                    .replace(ENGLISH_NUMBERS[5], ARABIC_NUMBERS[5])
+                    .replace(ENGLISH_NUMBERS[6], ARABIC_NUMBERS[6])
+                    .replace(ENGLISH_NUMBERS[7], ARABIC_NUMBERS[7])
+                    .replace(ENGLISH_NUMBERS[8], ARABIC_NUMBERS[8])
+                    .replace(ENGLISH_NUMBERS[9], ARABIC_NUMBERS[9]);
         }
 
     }

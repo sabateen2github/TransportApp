@@ -35,6 +35,7 @@ public class ToFragment extends AnimationFragment implements OnMapReadyCallback 
     private SupportMapFragment fragment;
     private ActivityModel activityModel;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -87,6 +88,8 @@ public class ToFragment extends AnimationFragment implements OnMapReadyCallback 
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, googleMap, requireActivity());
+
         if (mMap != null) return;
         mMap = googleMap;
 
@@ -103,7 +106,6 @@ public class ToFragment extends AnimationFragment implements OnMapReadyCallback 
             viewModel.To = pos.target;
         });
 
-        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, mMap, requireActivity());
 
 
     }

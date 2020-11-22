@@ -155,6 +155,10 @@ public class BusStopFragment extends AnimationFragment {
 
     private class ItemsAdapter extends RecyclerView.Adapter<ScheduleViewHolder> {
 
+
+        private final char[] ENGLISH_NUMBERS = {'\u0030', '\u0031', '\u0032', '\u0033', '\u0034', '\u0035', '\u0036', '\u0037', '\u0038', '\u0039'};
+        private final char[] ARABIC_NUMBERS = {'\u0660', '\u0661', '\u0662', '\u0663', '\u0664', '\u0665', '\u0666', '\u0667', '\u0668', '\u0669'};
+
         public ItemsAdapter() {
             super();
             setHasStableIds(false);
@@ -168,7 +172,16 @@ public class BusStopFragment extends AnimationFragment {
 
         @Override
         public void onBindViewHolder(@NonNull ScheduleViewHolder holder, int position) {
-            holder.bus_stop_item_count.setText(MessageFormat.format("{0} حافلات", model.properties.getValue().chosen_schedule[position].count));
+            holder.bus_stop_item_count.setText(MessageFormat.format("{0} حافلات", model.properties.getValue().chosen_schedule[position].count).replace(ENGLISH_NUMBERS[0], ARABIC_NUMBERS[0])
+                    .replace(ENGLISH_NUMBERS[1], ARABIC_NUMBERS[1])
+                    .replace(ENGLISH_NUMBERS[2], ARABIC_NUMBERS[2])
+                    .replace(ENGLISH_NUMBERS[3], ARABIC_NUMBERS[3])
+                    .replace(ENGLISH_NUMBERS[4], ARABIC_NUMBERS[4])
+                    .replace(ENGLISH_NUMBERS[5], ARABIC_NUMBERS[5])
+                    .replace(ENGLISH_NUMBERS[6], ARABIC_NUMBERS[6])
+                    .replace(ENGLISH_NUMBERS[7], ARABIC_NUMBERS[7])
+                    .replace(ENGLISH_NUMBERS[8], ARABIC_NUMBERS[8])
+                    .replace(ENGLISH_NUMBERS[9], ARABIC_NUMBERS[9]));
             holder.bus_stop_item_route.setText(MessageFormat.format("من {0} الى {1}", model.properties.getValue().chosen_schedule[position].from, model.properties.getValue().chosen_schedule[position].to));
 
             holder.bus_stop_item_arrival.setText(getTimeUtils.getTime(model.properties.getValue().chosen_schedule[position].hours, model.properties.getValue().chosen_schedule[position].minutes));

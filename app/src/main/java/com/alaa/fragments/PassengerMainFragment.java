@@ -51,7 +51,6 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
 
         ViewModelProvider provider = new ViewModelProvider(requireActivity());
         stateModel = provider.get(PassengerState.class);
-        PassengerState.State state = stateModel.state.getValue();
         activityModel = provider.get(ActivityModel.class);
 
         AppCompatImageView arrowBack = view.findViewById(R.id.passenger_back);
@@ -86,7 +85,7 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
                     });
                 });
 
-            });
+            }, false, getViewLifecycleOwner());
 
         });
 
@@ -163,6 +162,7 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, googleMap, requireActivity());
 
         if (mMap != null) return;
 
@@ -192,8 +192,6 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
             });
         }
 
-
-        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, mMap, requireActivity());
 
     }
 

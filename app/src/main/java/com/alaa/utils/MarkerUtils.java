@@ -1,11 +1,13 @@
 package com.alaa.utils;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
@@ -26,6 +28,7 @@ public class MarkerUtils {
 
 
     public static void addMarker(LifecycleOwner owner, ActivityModel activityModel, GoogleMap map, Activity activity) {
+
 
         SensorManager sensorManager;
         final float[] accelerometerReading = new float[3];
@@ -67,10 +70,10 @@ public class MarkerUtils {
                         compassAnimator = new CompassAnimator(currentLocation[0], activityModel, owner);
                         compassAnimator.setPhysical(CompassAnimator.INERTIA_MOMENT_DEFAULT, CompassAnimator.ALPHA_DEFAULT, 1500);
                         compassAnimator.rotationUpdate(angle - cameraPosition.bearing, false);
+                        compassAnimator.start();
                     } else {
                         compassAnimator.rotationUpdate(angle - cameraPosition.bearing, true);
                     }
-
                 }
 
             }
@@ -102,25 +105,24 @@ public class MarkerUtils {
             @Override
             public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
                 if (source.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
-                    source.getLifecycle().removeObserver(this);
                     sensorManager.unregisterListener(listener);
+                    if (currentLocation[0] != null)
+                        currentLocation[0].remove();
                 }
             }
         });
 
         ((MapsActivity) activity).getCurrentLocation((loc) -> {
-            currentLocation[0] = map.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_compass)).anchor(0.5f, 0.5f));
 
-            activityModel.mainHandelr.postDelayed(owner, new Runnable() {
-                @Override
-                public void run() {
-                    ((MapsActivity) activity).getCurrentLocation((curLoc) -> {
-                        currentLocation[0].setPosition(curLoc);
-                        activityModel.mainHandelr.postDelayed(owner, this, 2000);
-                    });
-                }
-            }, 2000);
-        });
+            Log.e("Alaa", "Current location");
+
+
+            if (currentLocation[0] == null) {
+                currentLocation[0] = map.addMarker(new MarkerOptions().position(loc).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_compass)).anchor(0.5f, 0.5f));
+            }
+            currentLocation[0].setPosition(loc);
+
+        }, true, owner);
     }
 
 
@@ -136,6 +138,26 @@ public class MarkerUtils {
             mActivityModel = activityModel;
             mLifecycleOwner = lifecycleOwner;
 
+        }
+
+        public void start() {
+            ValueAnimator animator = ValueAnimator.ofFloat(0, 1);
+            animator.setRepeatCount(ValueAnimator.INFINITE);
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    onAnimate();
+                }
+            });
+            animator.start();
+            mLifecycleOwner.getLifecycle().addObserver(new LifecycleEventObserver() {
+                @Override
+                public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+                    if (source.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
+                        animator.cancel();
+                    }
+                }
+            });
         }
 
 
@@ -164,11 +186,7 @@ public class MarkerUtils {
             } else {
                 mMarker.setRotation(angle1);
             }
-            if (animationOn) {
-                mActivityModel.mainHandelr.post(mLifecycleOwner, () -> {
-                    onAnimate();
-                });
-            }
+
         }
 
         /**
@@ -196,9 +214,6 @@ public class MarkerUtils {
             if (animate) {
                 if (Math.abs(angle0 - angleNew) > ANGLE_DELTA_THRESHOLD) {
                     angle0 = angleNew;
-                    mActivityModel.mainHandelr.post(mLifecycleOwner, () -> {
-                        onAnimate();
-                    });
                 }
                 animationOn = true;
             } else {

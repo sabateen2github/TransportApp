@@ -2,6 +2,7 @@ package com.alaa.viewmodels;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -21,8 +22,8 @@ import java.util.concurrent.Executor;
 
 
 public class ActivityModel extends ViewModel {
-    public LinkedList<getCurrentLocationCallback> callbacks_settings;
-    public LinkedList<getCurrentLocationCallback> callbacks_permission;
+    public LinkedList<CallbackWrapper> callbacks_settings;
+    public LinkedList<CallbackWrapper> callbacks_permission;
     public getSearchMap callback_search;
     public MutableLiveData<PointsStructure> index;
     public Executor exe;
@@ -47,6 +48,12 @@ public class ActivityModel extends ViewModel {
     @FunctionalInterface
     public static interface getCurrentLocationCallback {
         public void onUpdate(@Nullable LatLng center);
+    }
+
+    public static class CallbackWrapper {
+        public getCurrentLocationCallback callback;
+        public boolean continuous;
+        public LifecycleOwner owner;
     }
 
     public static class PointsStructure {

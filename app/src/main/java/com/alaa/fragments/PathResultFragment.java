@@ -36,6 +36,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
     private List<Marker> mMarkers;
     private ActivityModel activityModel;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -166,6 +167,7 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
             marker.setTag(feature);
             i++;
         }
+        mMarkers.get(mMarkers.size() - 1).setTitle("آخر نقطة نزول");
         mMarkers.add(mMap.addMarker(new MarkerOptions().position(viewModel.To).alpha(0.5f).title("وجهتك المطلوية")));
 
         mMap.setOnMarkerClickListener((marker -> {
@@ -202,6 +204,8 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, googleMap, requireActivity());
+
         if (mMap != null) return;
         mMap = googleMap;
         if (mPendingUpdate) {
@@ -210,7 +214,6 @@ public class PathResultFragment extends AnimationFragment implements OnMapReadyC
             mPendingUpdate = false;
         }
 
-        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, mMap, requireActivity());
 
     }
 }

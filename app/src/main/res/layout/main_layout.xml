@@ -29,14 +29,14 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/main_passenger_button"
             android:layout_width="300dp"
-            android:layout_height="200dp"
+            android:layout_height="180dp"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true">
 
             <ImageView
                 android:id="@+id/main_passenger_button_internal"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/ic_passenger"
                 android:clickable="false"
@@ -76,14 +76,14 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/main_driver_button"
             android:layout_width="300dp"
-            android:layout_height="200dp"
+            android:layout_height="180dp"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true">
 
             <ImageView
                 android:id="@+id/main_driver_button_internal"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/ic_bus_driver"
                 android:clickable="false"

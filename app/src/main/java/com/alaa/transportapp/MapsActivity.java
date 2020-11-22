@@ -15,6 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.alaa.fragments.MainFragment;
@@ -93,11 +96,14 @@ public class MapsActivity extends FragmentActivity {
             getSupportFragmentManager().beginTransaction().add(android.R.id.content, new MainFragment()).commit();
         }
 
+
+        //should be removed
         if (ActivityModel.isSimulation) {
             runSimulation();
         }
 
 
+        //should be removed
         provider.get(PassengerRequestModel.class).status.observe(this, (item) -> {
 
             switch (item) {
@@ -121,8 +127,8 @@ public class MapsActivity extends FragmentActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SETTINGS_CODE) {
 
-            ActivityModel.getCurrentLocationCallback callback = viewModel.callbacks_settings.removeFirst();
-            getCurrentLocation(callback);
+            ActivityModel.CallbackWrapper wrapper = viewModel.callbacks_settings.removeFirst();
+            getCurrentLocation(wrapper.callback, wrapper.continuous, wrapper.owner);
         } else if (requestCode == AUTO_COMPLETE_MAP) {
             if (resultCode == RESULT_OK) {
 
@@ -144,21 +150,28 @@ public class MapsActivity extends FragmentActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_CODE) {
-            ActivityModel.getCurrentLocationCallback callback = viewModel.callbacks_permission.removeFirst();
+
+            ActivityModel.CallbackWrapper wrapper = viewModel.callbacks_permission.removeFirst();
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getCurrentLocation(callback);
+                getCurrentLocation(wrapper.callback, wrapper.continuous, wrapper.owner);
             } else {
-                callback.onUpdate(null);
+                getCurrentLocation(wrapper.callback, wrapper.continuous, wrapper.owner);
             }
         }
     }
 
-    public void getCurrentLocation(ActivityModel.getCurrentLocationCallback callback) {
+    public void getCurrentLocation(ActivityModel.getCurrentLocationCallback callback, boolean continuous, LifecycleOwner owner) {
+
+        if (owner.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
+            return;
+        }
 
         //get Current location
         LocationRequest request = LocationRequest.create();
-        request.setNumUpdates(1);
+        if (!continuous)
+            request.setNumUpdates(1);
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(request);
 
         FusedLocationProviderClient fusedClient = LocationServices.getFusedLocationProviderClient(this);
@@ -167,12 +180,19 @@ public class MapsActivity extends FragmentActivity {
         task.addOnSuccessListener(this, locationSettingsResponse -> {
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                viewModel.callbacks_permission.addLast(callback);
+
+                ActivityModel.CallbackWrapper wrapper = new ActivityModel.CallbackWrapper();
+                wrapper.callback = callback;
+                wrapper.continuous = continuous;
+                wrapper.owner = owner;
+                viewModel.callbacks_permission.addLast(wrapper);
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_CODE);
                 return;
             }
 
-            fusedClient.requestLocationUpdates(request, new LocationCallback() {
+
+            LocationCallback locationCallback;
+            fusedClient.requestLocationUpdates(request, locationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
                     if (locationResult != null) {
@@ -181,13 +201,27 @@ public class MapsActivity extends FragmentActivity {
                     }
                 }
             }, Looper.getMainLooper());
+            owner.getLifecycle().addObserver(new LifecycleEventObserver() {
+                @Override
+                public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
 
+                    if (source.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
+                        Log.e("Alaa", "Observer location destroyed");
+                        owner.getLifecycle().removeObserver(this);
+                        fusedClient.removeLocationUpdates(locationCallback);
+                    }
+                }
+            });
         });
         task.addOnFailureListener(this, e -> {
             if (e instanceof ResolvableApiException) {
 
                 try {
-                    viewModel.callbacks_settings.addLast(callback);
+                    ActivityModel.CallbackWrapper wrapper = new ActivityModel.CallbackWrapper();
+                    wrapper.callback = callback;
+                    wrapper.continuous = continuous;
+                    wrapper.owner = owner;
+                    viewModel.callbacks_settings.addLast(wrapper);
                     ResolvableApiException resolvable = (ResolvableApiException) e;
                     resolvable.startResolutionForResult(MapsActivity.this,
                             SETTINGS_CODE);

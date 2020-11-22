@@ -38,6 +38,9 @@ import java.util.List;
 public class DriverPageFragment extends AnimationFragment {
 
 
+    private final char[] ENGLISH_NUMBERS = {'\u0030', '\u0031', '\u0032', '\u0033', '\u0034', '\u0035', '\u0036', '\u0037', '\u0038', '\u0039'};
+    private final char[] ARABIC_NUMBERS = {'\u0660', '\u0661', '\u0662', '\u0663', '\u0664', '\u0665', '\u0666', '\u0667', '\u0668', '\u0669'};
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -120,7 +123,16 @@ public class DriverPageFragment extends AnimationFragment {
         Trip currentTrip = state.trips.getValue()[state.mCurrent];
         ((TextView) container.findViewById(R.id.driver_bus_stop)).setText(currentTrip.busStop);
         ((TextView) container.findViewById(R.id.driver_arrival_time)).setText(MessageFormat.format("وقت التواجد {0} ", getTimeUtils.getTime(currentTrip.arrivalTimeH, currentTrip.arrivalTimeM)));
-        ((TextView) container.findViewById(R.id.driver_waiting_time)).setText(MessageFormat.format("وقت الانتظار {0} دقائق", currentTrip.waitingTime));
+        ((TextView) container.findViewById(R.id.driver_waiting_time)).setText(MessageFormat.format("وقت الانتظار {0} دقائق", currentTrip.waitingTime).replace(ENGLISH_NUMBERS[0], ARABIC_NUMBERS[0])
+                .replace(ENGLISH_NUMBERS[1], ARABIC_NUMBERS[1])
+                .replace(ENGLISH_NUMBERS[2], ARABIC_NUMBERS[2])
+                .replace(ENGLISH_NUMBERS[3], ARABIC_NUMBERS[3])
+                .replace(ENGLISH_NUMBERS[4], ARABIC_NUMBERS[4])
+                .replace(ENGLISH_NUMBERS[5], ARABIC_NUMBERS[5])
+                .replace(ENGLISH_NUMBERS[6], ARABIC_NUMBERS[6])
+                .replace(ENGLISH_NUMBERS[7], ARABIC_NUMBERS[7])
+                .replace(ENGLISH_NUMBERS[8], ARABIC_NUMBERS[8])
+                .replace(ENGLISH_NUMBERS[9], ARABIC_NUMBERS[9]));
         ((TextView) container.findViewById(R.id.driver_working_line)).setText(currentTrip.Route);
 
     }

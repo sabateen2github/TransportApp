@@ -37,6 +37,7 @@ public class FromFragment extends AnimationFragment implements OnMapReadyCallbac
     private ActivityModel activityModel;
 
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -67,7 +68,7 @@ public class FromFragment extends AnimationFragment implements OnMapReadyCallbac
             ((MapsActivity) getActivity()).getCurrentLocation((LatLng loc) -> {
                 if (loc == null) return;
                 handleUpdateMap(loc, 15);
-            });
+            }, false, getViewLifecycleOwner());
         });
 
         view.findViewById(R.id.next).setOnClickListener((v) -> {
@@ -107,6 +108,8 @@ public class FromFragment extends AnimationFragment implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, googleMap, requireActivity());
+
         if (mMap != null) return;
         mMap = googleMap;
 
@@ -123,7 +126,6 @@ public class FromFragment extends AnimationFragment implements OnMapReadyCallbac
         });
 
 
-        MarkerUtils.addMarker(getViewLifecycleOwner(), activityModel, mMap, requireActivity());
 
     }
 }
