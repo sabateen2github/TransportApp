@@ -20,7 +20,7 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.alaa.fragments.MainFragment;
+import com.alaa.fragments.ChooseServiceFragment;
 import com.alaa.utils.GetAssets;
 import com.alaa.utils.getTimeUtils;
 import com.alaa.viewmodels.ActivityModel;
@@ -93,7 +93,7 @@ public class MapsActivity extends FragmentActivity {
                 }
             });
 
-            getSupportFragmentManager().beginTransaction().add(android.R.id.content, new MainFragment()).commit();
+            getSupportFragmentManager().beginTransaction().add(android.R.id.content, new ChooseServiceFragment()).commit();
         }
 
 
