@@ -5,7 +5,6 @@ import android.app.Application;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
@@ -19,12 +18,14 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
+import com.alaa.fragments.ChooseRouteFragment;
 import com.alaa.fragments.ChooseServiceFragment;
 import com.alaa.utils.GetAssets;
-import com.alaa.utils.getTimeUtils;
 import com.alaa.viewmodels.ActivityModel;
-import com.alaa.viewmodels.PassengerRequestModel;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -40,17 +41,16 @@ import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -61,11 +61,20 @@ public class MapsActivity extends FragmentActivity {
     private static final int PERMISSION_CODE = 1998;
     public static final int AUTO_COMPLETE_MAP = 1997;
 
+    public static final String FRAGMENT_CLASS_KEY = "Fragment Class";
+    public static final String FRAGMENT_EXTRA_DATA_KEY = "Fragment Extra";
+
+    public static final String UNIQUE_JOB_ID = "AnalyticsWorkID";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(AnalyticsJob.class, 2, TimeUnit.HOURS).build();
+
+        WorkManager.getInstance(getApplication()).enqueueUniquePeriodicWork(UNIQUE_JOB_ID, ExistingPeriodicWorkPolicy.KEEP, workRequest);
 
         findViewById(android.R.id.content).setBackgroundColor(getColor(R.color.background_color));
 
@@ -93,32 +102,16 @@ public class MapsActivity extends FragmentActivity {
                 }
             });
 
-            getSupportFragmentManager().beginTransaction().add(android.R.id.content, new ChooseServiceFragment()).commit();
-        }
-
-
-        //should be removed
-        if (ActivityModel.isSimulation) {
-            runSimulation();
-        }
-
-
-        //should be removed
-        provider.get(PassengerRequestModel.class).status.observe(this, (item) -> {
-
-            switch (item) {
-
-                case PassengerRequestModel.STATUS_PENDING:
-                    if (viewModel.already_set) break;
-                    viewModel.instant = getTimeUtils.getInstant();
-                    viewModel.already_set = true;
-                    keepchecking();
-                    break;
-                default:
-                    viewModel.already_set = false;
-                    break;
+            ChooseServiceFragment chooseServiceFragment = new ChooseServiceFragment();
+            if (getIntent().getExtras() != null && getIntent().getExtras().getBoolean(GeoEventsHelper.INTENT_EXTRA_GEOEVENT)) {
+                Bundle fragmentBundle = Bundle.EMPTY;
+                fragmentBundle.putSerializable(FRAGMENT_CLASS_KEY, ChooseRouteFragment.class);
+                fragmentBundle.putLong(FRAGMENT_EXTRA_DATA_KEY, getIntent().getExtras().getLong(GeoEventsHelper.ACTIVITY_INTENT_ROUTE_ID));
+                chooseServiceFragment.setArguments(fragmentBundle);
             }
-        });
+            getSupportFragmentManager().beginTransaction().add(android.R.id.content, chooseServiceFragment).commit();
+        }
+
 
     }
 
@@ -245,58 +238,4 @@ public class MapsActivity extends FragmentActivity {
 
     }
 
-
-    public void runSimulation() {
-
-
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), MessageFormat.format("Simulation is running {0}", getTimeUtils.getCurrentTime()), Snackbar.LENGTH_INDEFINITE);
-
-        snackbar.setAction("توقف", (v) -> {
-            ActivityModel.isSimulation = false;
-            snackbar.dismiss();
-        });
-        snackbar.setActionTextColor(Color.CYAN);
-
-        ViewModelProvider provider = new ViewModelProvider(this);
-        provider.get(ActivityModel.class).mainHandelr.postDelayed(this, new Runnable() {
-            @Override
-            public void run() {
-                snackbar.setText(MessageFormat.format("simulation is running {0}", getTimeUtils.getCurrentTime()));
-                provider.get(ActivityModel.class).mainHandelr.postDelayed(MapsActivity.this, this, 1000);
-            }
-        }, 1000);
-        snackbar.show();
-        ActivityModel.isSimulation = true;
-    }
-
-
-    public void handleAboutClick() {
-    }
-
-
-    public void keepchecking() {
-
-        viewModel.mainHandelr.post(this, new Runnable() {
-            @Override
-            public void run() {
-                PassengerRequestModel passengerModel = new ViewModelProvider(MapsActivity.this).get(PassengerRequestModel.class);
-                switch (passengerModel.status.getValue()) {
-                    case PassengerRequestModel.STATUS_NOT_SENT:
-                        break;
-                    case PassengerRequestModel.STATUS_PENDING: {
-                        if (getTimeUtils.getPeriodFromNow(viewModel.instant[0], viewModel.instant[1]) * -1 >= 5) {
-                            passengerModel.status.setValue(Math.random() > 0.5d ? PassengerRequestModel.STATUS_ACCEPTED : PassengerRequestModel.STATUS_DENIED);
-                        } else {
-                            viewModel.mainHandelr.postDelayed(MapsActivity.this, this, 1000);
-                        }
-                    }
-                    break;
-                    case PassengerRequestModel.STATUS_DENIED:
-                        break;
-                    case PassengerRequestModel.STATUS_ACCEPTED:
-                        break;
-                }
-            }
-        });
-    }
 }

@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.TransitionManager;
 
+import com.alaa.transportapp.GeoEventsHelper;
+import com.alaa.transportapp.MapsActivity;
 import com.alaa.transportapp.R;
 import com.alaa.utils.AnimationFragment;
 import com.alaa.viewmodels.ActivityModel;
@@ -86,6 +88,11 @@ public class ChooseRouteFragment extends AnimationFragment {
         public void onBindViewHolder(@NonNull Holder holder, int position) {
             holder.RouteName.setText(viewModel.Properties.fromTos[position + 1].toString());
             holder.itemView.setOnClickListener((v) -> {
+                if (getArguments() != null && getArguments().containsKey(MapsActivity.FRAGMENT_CLASS_KEY)) {
+                    new GeoEventsHelper().registerNotificationResponse(getContext(), viewModel.Properties.mFeature, viewModel.Properties.names[position]);
+                    getActivity().onBackPressed();
+                    return;
+                }
                 mState.Filter = viewModel.Properties.names[position];
                 getParentFragmentManager().beginTransaction().replace(android.R.id.content, new BusStopFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
             });

@@ -6,5 +6,7 @@
     <string name="bus_stop_selected">عرض جدول رحلات النقطة المختارة</string>
     <string name="bus_stop_deselected">اضغط على نقطة توقف لعرض جدول الرحلات</string>
 
+    <string name="are_you_waiting_notification_title">هل تنتظر حافلة؟</string>
+    <string name="are_you_waiting_notification_body">إضغط لإختيار خط النقل.</string>
 
 </resources>

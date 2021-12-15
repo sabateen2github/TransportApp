@@ -1,6 +1,7 @@
 package com.alaa.utils;
 
-import android.app.Application;
+import android.content.Context;
+import android.provider.Settings;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -21,7 +22,7 @@ public class GetAssets {
 
     private static boolean checked = false;
 
-    private static void updateAssetFile(Application application, boolean exist) throws IOException {
+    private static void updateAssetFile(Context application, boolean exist) throws IOException {
         File file = new File(application.getCacheDir(), "assets.zip");
         File idFile = new File(application.getCacheDir(), "assetsId.id");
 
@@ -81,10 +82,13 @@ public class GetAssets {
             Log.e("Alaa", "Error 10 : ");
             e.printStackTrace();
         }
-
     }
 
-    public static InputStream open(Application application, String FileName) throws FileNotFoundException {
+    public static String generateUserId(Context context) {
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    public static InputStream open(Context application, String FileName) throws FileNotFoundException {
 
 
         Log.e("Alaa", "open : " + FileName);

@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.alaa.transportapp.MapsActivity;
 import com.alaa.transportapp.R;
 import com.alaa.utils.AnimationFragment;
 
@@ -43,5 +44,11 @@ public class ChooseServiceFragment extends AnimationFragment {
         getRoutesService.setOnClickListener((v) -> {
             getParentFragmentManager().beginTransaction().replace(android.R.id.content, new ToFragment()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
         });
+
+        if (savedInstanceState == null && getArguments() != null && getArguments().containsKey(MapsActivity.FRAGMENT_CLASS_KEY)) {
+            PassengerMainFragment passengerMainFragment = new PassengerMainFragment();
+            passengerMainFragment.setArguments(getArguments());
+            getParentFragmentManager().beginTransaction().replace(android.R.id.content, passengerMainFragment).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
+        }
     }
 }

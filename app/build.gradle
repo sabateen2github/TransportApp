@@ -1,4 +1,5 @@
 plugins {
+    id "org.openapi.generator" version "5.3.0"
     id 'com.android.application'
 }
 
@@ -9,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.alaa.transportapp"
-        minSdkVersion 23
+        minSdkVersion 26
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -36,6 +37,7 @@ android {
     }
 }
 
+
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
@@ -50,6 +52,11 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:2.0.3'
     implementation 'org.locationtech.proj4j:proj4j:1.1.1'
     implementation 'com.opencsv:opencsv:4.6'
+    implementation files('C:\\Users\\Alaa\\Desktop\\ExtBackend\\android_client\\build\\libs\\client-api-1.0.0.jar')
+    implementation "androidx.room:room-runtime:2.3.0"
+    annotationProcessor "androidx.room:room-compiler:2.3.0"
+    implementation "androidx.work:work-runtime:2.7.1"
+
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

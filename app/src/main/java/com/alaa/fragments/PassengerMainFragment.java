@@ -29,6 +29,7 @@ import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PassengerMainFragment extends AnimationFragment implements OnMapReadyCallback {
@@ -111,6 +112,19 @@ public class PassengerMainFragment extends AnimationFragment implements OnMapRea
                     stateModel.state.getValue().mapCenter = pos.target;
                     stateModel.state.getValue().mapZoom = pos.zoom;
                     stateModel.state.getValue().searchViewPort = null;
+                }
+
+                if (savedInstanceState == null && getArguments() != null && getArguments().containsKey(MapsActivity.FRAGMENT_CLASS_KEY)) {
+                    Arrays.stream(activityModel.index.getValue().features).anyMatch((item) -> {
+                        if (item.id == getArguments().getLong(MapsActivity.FRAGMENT_EXTRA_DATA_KEY)) {
+                            provider.get(BusStopViewModel.class).SelectedFeature = item;
+                            return true;
+                        }
+                        return false;
+                    });
+                    ChooseRouteFragment chooseRouteFragment = new ChooseRouteFragment();
+                    chooseRouteFragment.setArguments(getArguments());
+                    getParentFragmentManager().beginTransaction().replace(android.R.id.content, chooseRouteFragment).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).addToBackStack(null).commit();
                 }
             }
         });
