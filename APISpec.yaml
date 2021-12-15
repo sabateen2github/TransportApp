@@ -1,0 +1,189 @@
+openapi: 3.0.0
+info:
+  description: This is a simple API
+  version: "1.0.0"
+  title: Transport API
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: pasengers
+    description: passengers tag
+paths:
+  /passengers:
+    post:
+      tags:
+        - passengers
+      summary: Collects location changes and corresponding instant of time for each user.
+      operationId: collectPassengerData
+      description: |
+        Collects location changes and corresponding instant of time for each user.
+      requestBody:
+        description: N/A
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LongtermRequestBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LongtermResponseBody'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+
+  /notifications:
+    post:
+      tags:
+        - notifications
+      summary: Collects the whether a passenger is waiting and what is the route that he is waiting for
+      operationId: collectNotificationsData
+      description: |
+        Collects the whether a passenger is waiting and what is the route that he is waiting for
+      requestBody:
+        description: N/A
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequestBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponseBody'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+  /buses:
+    post:
+      tags:
+        - buses
+      summary: Collects the longterm records of buses
+      operationId: collectBusesData
+      description: |
+        Collects the longterm records of buses
+      requestBody:
+        description: N/A
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LongTermBusRequestBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LongTermBusResponseBody'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+components:
+  schemas:
+    LongtermRequestBody:
+      type: object
+      required:
+        - longitude
+        - latitude
+        - instant
+        - userID
+      properties:
+        longitude:
+          type: number
+          format: double
+          example: 32.1555
+        latitude:
+          type: number
+          format: double
+          example: 31.8884
+        instant:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
+        userID:
+          type: string
+          pattern: '^[A-Fa-f0-9]{64}$'
+          description: SHA-256
+
+    LongtermResponseBody:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Success"
+    NotificationRequestBody:
+      type: object
+      required:
+        - longitude
+        - latitude
+        - instant
+        - userID
+        - routeID
+      properties:
+        longitude:
+          type: number
+          format: double
+          example: 32.548
+        latitude:
+          type: number
+          format: double
+          example: 32.548
+        instant:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
+        userID:
+          type: string
+          pattern: '^[A-Fa-f0-9]{64}$'
+          example: '1234512345123451234512345123451234512345123451234512345123451234'
+        routeID:
+          type: string
+          format: '^[A-Fa-f0-9]{64}$'
+          example: '1234512345123451234512345123451234512345123451234512345123451234'
+    NotificationResponseBody:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Success"
+    LongTermBusRequestBody:
+      type: object
+      required:
+        - longitude
+        - latitude
+        - instant
+        - busID
+      properties:
+        longitude:
+          type: number
+          format: double
+          example: 32.548
+        latitude:
+          type: number
+          format: double
+          example: 32.548
+        instant:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
+        busID:
+          type: string
+          format: '^[A-Fa-f0-9]{64}$'
+          example: '1234512345123451234512345123451234512345123451234512345123451234'
+    LongTermBusResponseBody:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Success"
