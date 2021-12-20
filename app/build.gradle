@@ -55,7 +55,7 @@ dependencies {
     implementation files('C:\\Users\\Alaa\\Desktop\\ExtBackend\\android_client\\build\\libs\\client-api-1.0.0.jar')
     implementation "androidx.room:room-runtime:2.3.0"
     annotationProcessor "androidx.room:room-compiler:2.3.0"
-    implementation "androidx.work:work-runtime:2.7.1"
+    implementation "androidx.work:work-runtime:2.5.0"
 
 
     testImplementation 'junit:junit:4.+'

@@ -193,7 +193,7 @@ public class FindPathModel extends ViewModel {
     private static String getFromToServiceURL() {
         if (cachedURL != null) return cachedURL;
         try {
-            URL url = new URL("http://alaa4sabateen.000webhostapp.com/AppEngineURL.id");
+            URL url = new URL("https://myeloid-professions.000webhostapp.com/AppEngineURL.id");
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -207,6 +207,7 @@ public class FindPathModel extends ViewModel {
             e.printStackTrace();
         }
         Log.e("Alaa", "Get AppEngine URL Failed");
+
         return "https://new-age-192017.uc.r.appspot.com";
     }
 

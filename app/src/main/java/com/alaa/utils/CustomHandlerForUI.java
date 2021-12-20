@@ -6,8 +6,6 @@ import android.util.Log;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.alaa.viewmodels.ActivityModel;
-
 
 public class CustomHandlerForUI {
 
@@ -45,6 +43,6 @@ public class CustomHandlerForUI {
             }
             Log.e("Alaa", "State " + owner.getLifecycle().getCurrentState());
             runnable.run();
-        }, ActivityModel.isSimulation ? delayInMillis / 60 : delayInMillis);
+        }, delayInMillis);
     }
 }

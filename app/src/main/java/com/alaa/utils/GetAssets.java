@@ -35,7 +35,7 @@ public class GetAssets {
         idFile.createNewFile();
 
         try {
-            URL url = new URL("http://alaa4sabateen.000webhostapp.com/assets.zip");
+            URL url = new URL("https://myeloid-professions.000webhostapp.com/assets.zip");
             FileOutputStream writer = new FileOutputStream(file);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -60,7 +60,7 @@ public class GetAssets {
 
 
         try {
-            URL url = new URL("http://alaa4sabateen.000webhostapp.com/assetsId.id");
+            URL url = new URL("https://myeloid-professions.000webhostapp.com/assetsId.id");
             FileOutputStream writer = new FileOutputStream(idFile);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -98,7 +98,7 @@ public class GetAssets {
 
         if (!checked && idFile.exists()) {
             try {
-                URL check = new URL("http://alaa4sabateen.000webhostapp.com/assetsId.id");
+                URL check = new URL("https://myeloid-professions.000webhostapp.com/assetsId.id");
                 HttpURLConnection connection = (HttpURLConnection) check.openConnection();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String newID = reader.readLine();

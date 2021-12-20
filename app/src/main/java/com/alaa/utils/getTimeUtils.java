@@ -1,7 +1,5 @@
 package com.alaa.utils;
 
-import com.alaa.viewmodels.ActivityModel;
-
 import java.text.MessageFormat;
 import java.util.Calendar;
 
@@ -79,52 +77,26 @@ public class getTimeUtils {
 
     public static String getCurrentTime() {
 
-        if (ActivityModel.isSimulation) {
-            if (elapsed == -1) {
-                elapsed = System.currentTimeMillis();
-                calendar = Calendar.getInstance();
-            } else {
-                calendar.add(Calendar.MILLISECOND, (int) (System.currentTimeMillis() - elapsed) * 60);
-                elapsed = System.currentTimeMillis();
-            }
-        } else {
-            calendar = Calendar.getInstance();
-            elapsed = -1;
-        }
+        calendar = Calendar.getInstance();
+        elapsed = -1;
 
         return getTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
     }
 
 
     public static int[] getInstant() {
-        if (ActivityModel.isSimulation) {
-            if (elapsed == -1) {
-                elapsed = System.currentTimeMillis();
-                calendar = Calendar.getInstance();
-            } else {
-                calendar.add(Calendar.MILLISECOND, (int) (System.currentTimeMillis() - elapsed) * 60);
-                elapsed = System.currentTimeMillis();
-            }
-        } else {
-            calendar = Calendar.getInstance();
-            elapsed = -1;
-        }
+
+        calendar = Calendar.getInstance();
+        elapsed = -1;
+
         return new int[]{calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)};
     }
 
     public static int getPeriodFromNow(int h, int m) {
-        if (ActivityModel.isSimulation) {
-            if (elapsed == -1) {
-                elapsed = System.currentTimeMillis();
-                calendar = Calendar.getInstance();
-            } else {
-                calendar.add(Calendar.MILLISECOND, (int) (System.currentTimeMillis() - elapsed) * 60);
-                elapsed = System.currentTimeMillis();
-            }
-        } else {
-            calendar = Calendar.getInstance();
-            elapsed = -1;
-        }
+
+        calendar = Calendar.getInstance();
+        elapsed = -1;
+
         int hours = calendar.get(Calendar.HOUR_OF_DAY);
         int minutes = calendar.get(Calendar.MINUTE);
 
