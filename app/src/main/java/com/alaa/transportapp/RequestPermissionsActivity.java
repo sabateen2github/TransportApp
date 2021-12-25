@@ -15,7 +15,8 @@ public class RequestPermissionsActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+        this.requestPermissions(new String[]{
+                Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE);
     }
@@ -30,9 +31,5 @@ public class RequestPermissionsActivity extends AppCompatActivity {
                 this.requestPermissions(permissions, REQUEST_CODE);
             }
         }
-    }
-
-    private void handleBroadcastEvent() {
-        new GeoEventsHelper().handleGeoEvent(this, getIntent().getExtras().getParcelable(GeoEventsHelper.INTENT_EXTRA_GEOEVENT));
     }
 }

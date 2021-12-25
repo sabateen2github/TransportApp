@@ -7,7 +7,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -25,6 +27,8 @@ import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
+
+import org.apache.commons.collections4.SetUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -48,11 +52,13 @@ public class GeoEventsHelper {
     public static final String CHANNEL_ID = "a5e556ff788b6c688445cc5648723";
     public static final int NOTIFICATION_ID = 0x1;
 
+    private static final int DWELLING_PERIOD_SECONDS = 10;
+
     private EventsDB appDatabase;
 
     public void handleGeoEvent(Context context, Intent intent) {
         GeofencingEvent event = GeofencingEvent.fromIntent(intent);
-
+        Log.e("Alaa", "Handle GeoEvent " + event.getGeofenceTransition());
         if (event.hasError()) {
             return;
         }
@@ -75,45 +81,32 @@ public class GeoEventsHelper {
 
     public void registerNotificationResponse(Context context, ActivityModel.PointsStructure.Feature feature, String routeId) {
 
-        Notification notification = new Notification();
-        notification.instant = Instant.now();
-        notification.latitude = feature.geometry.coordinates[1];
-        notification.longitude = feature.geometry.coordinates[0];
-        notification.userId = GetAssets.generateUserId(context);
-        notification.routeId = routeId;
+        AsyncTask.execute(() -> {
+            Notification notification = new Notification();
+            notification.instant = Instant.now();
+            notification.latitude = feature.geometry.coordinates[1];
+            notification.longitude = feature.geometry.coordinates[0];
+            notification.userId = GetAssets.generateUserId(context);
+            notification.routeId = routeId;
 
-        appDatabase.getNotificationDAO().insert(notification);
+            appDatabase.getNotificationDAO().insert(notification);
+        });
+
 
     }
 
 
     private void handleEntering(ActivityModel.PointsStructure pointsStructure, GeofencingEvent event, Context context, Intent intent) {
 
-        Entering entering = new Entering();
-        entering.userId = GetAssets.generateUserId(context);
-        entering.instant = Instant.now();
-        entering.latitude = event.getTriggeringLocation().getLatitude();
-        entering.longitude = event.getTriggeringLocation().getLongitude();
-        appDatabase.getEnteringDAO().insert(entering);
+        AsyncTask.execute(() -> {
+            Entering entering = new Entering();
+            entering.userId = GetAssets.generateUserId(context);
+            entering.instant = Instant.now();
+            entering.latitude = event.getTriggeringLocation().getLatitude();
+            entering.longitude = event.getTriggeringLocation().getLongitude();
+            appDatabase.getEnteringDAO().insert(entering);
+        });
 
-
-        List<ActivityModel.PointsStructure.Feature> featureList = pointsStructure.nearestKthElements(100, event.getTriggeringLocation().getLatitude(), event.getTriggeringLocation().getLongitude());
-        List<Geofence> geofenceList = featureList.stream().map(feature -> new Geofence.Builder().setRequestId(feature.geometry.toString())
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_ENTER)
-                .setLoiteringDelay(5 * 60 * 1000)
-                .setExpirationDuration(24 * 60 * 60 * 1000)
-                .setCircularRegion(feature.geometry.coordinates[0], feature.geometry.coordinates[1], 50)
-                .build()).collect(Collectors.toList());
-
-        GeofencingRequest geofencingRequest = new GeofencingRequest.Builder()
-                .addGeofences(geofenceList)
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-                .build();
-
-        Intent broadcastIntent = new Intent(context, LocationChangeReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        GeofencingClient geofencingClient = LocationServices.getGeofencingClient(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             Intent activityIntent = new Intent(context, RequestPermissionsActivity.class);
@@ -121,16 +114,48 @@ public class GeoEventsHelper {
             context.startActivity(activityIntent);
             return;
         } else {
-            List<String> requestIds = context.getSharedPreferences(REGISTERED_GEOFENCES, Context.MODE_PRIVATE).getStringSet(REQ_ID_KEY, new HashSet<>()).stream().collect(Collectors.toList());
-            geofencingClient.removeGeofences(requestIds).addOnSuccessListener((res) -> {
+            Set<String> oldSet = context.getSharedPreferences(REGISTERED_GEOFENCES, Context.MODE_PRIVATE).getStringSet(REQ_ID_KEY, new HashSet<>());
+            Set<ActivityModel.PointsStructure.Feature> featureSet = pointsStructure.nearestKthElements(100, event.getTriggeringLocation().getLatitude(), event.getTriggeringLocation().getLongitude());
+            Set<String> newSet = featureSet.stream().map((item) -> item.geometry.toString()).collect(Collectors.toSet());
+
+            SetUtils.SetView<String> toRemove = SetUtils.difference(oldSet, newSet);
+            if (toRemove.isEmpty()) return;
+
+            SetUtils.SetView<String> toAdd = SetUtils.difference(newSet, oldSet);
+            List<Geofence> geofenceList = featureSet.stream().map(feature -> {
+
+                        if (!toAdd.contains(feature.geometry.toString())) {
+                            return null;
+                        }
+
+                        return new Geofence.Builder().setRequestId(feature.geometry.toString())
+                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_ENTER)
+                                .setLoiteringDelay(DWELLING_PERIOD_SECONDS * 1000)
+                                .setExpirationDuration(24 * 60 * 60 * 1000)
+                                .setCircularRegion(feature.geometry.coordinates[1], feature.geometry.coordinates[0], 150)
+                                .build();
+                    }
+            ).filter((item) -> item != null).collect(Collectors.toList());
+
+            GeofencingRequest geofencingRequest = new GeofencingRequest.Builder()
+                    .addGeofences(geofenceList)
+                    .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                    .build();
+
+            Intent broadcastIntent = new Intent(context, LocationChangeReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            GeofencingClient geofencingClient = LocationServices.getGeofencingClient(context);
+
+            geofencingClient.removeGeofences(toRemove.stream().collect(Collectors.toList())).addOnSuccessListener((res) -> {
                 geofencingClient.addGeofences(geofencingRequest, pendingIntent).addOnSuccessListener((result) -> {
                     Set<String> stringSet = geofenceList.stream().map((item) -> item.getRequestId()).collect(Collectors.toSet());
                     context.getSharedPreferences(REGISTERED_GEOFENCES, Context.MODE_PRIVATE).edit().putStringSet(REQ_ID_KEY, stringSet).commit();
                 });
             });
+
         }
     }
-
 
     private void handleDwelling(ActivityModel.PointsStructure pointsStructure, GeofencingEvent event, Context context, Intent intent) {
         ActivityModel.PointsStructure.Feature feature = pointsStructure.getNearest(event.getTriggeringLocation().getLatitude(),
@@ -170,5 +195,39 @@ public class GeoEventsHelper {
         notificationManagerCompat.notify(NOTIFICATION_ID, builder.build());
     }
 
+    public void initRegisterGeoFences(Context context, ActivityModel.PointsStructure pointsStructure, double lat, double log) {
+
+        if (context.getSharedPreferences(REGISTERED_GEOFENCES, Context.MODE_PRIVATE).contains(REQ_ID_KEY)) {
+            return;
+        }
+
+        Log.e("Alaa", "Added init Geofences : " + lat + "   " + log);
+        Set<ActivityModel.PointsStructure.Feature> featureSet = pointsStructure.nearestKthElements(100, lat, log);
+        List<Geofence> geofenceList = featureSet.stream().map(feature -> new Geofence.Builder().setRequestId(feature.geometry.toString())
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_ENTER)
+                .setLoiteringDelay(DWELLING_PERIOD_SECONDS * 1000)
+                .setExpirationDuration(24 * 60 * 60 * 1000)
+                .setCircularRegion(feature.geometry.coordinates[1], feature.geometry.coordinates[0], 150)
+                .build()).collect(Collectors.toList());
+
+        GeofencingRequest geofencingRequest = new GeofencingRequest.Builder()
+                .addGeofences(geofenceList)
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER | GeofencingRequest.INITIAL_TRIGGER_DWELL)
+                .build();
+
+        Intent broadcastIntent = new Intent(context, LocationChangeReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        GeofencingClient geofencingClient = LocationServices.getGeofencingClient(context);
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            throw new IllegalStateException("Permissions should have been granted by this point!");
+        }
+        geofencingClient.addGeofences(geofencingRequest, pendingIntent).addOnSuccessListener((result) -> {
+            Set<String> stringSet = geofenceList.stream().map((item) -> item.getRequestId()).collect(Collectors.toSet());
+            Log.e("Alaa", "Added Geofences : " + stringSet);
+            context.getSharedPreferences(REGISTERED_GEOFENCES, Context.MODE_PRIVATE).edit().putStringSet(REQ_ID_KEY, stringSet).commit();
+        });
+    }
 
 }

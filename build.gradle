@@ -18,6 +18,11 @@ buildscript {
     }
 }
 
+
+plugins {
+    id "org.openapi.generator" version "5.3.0"
+}
+
 allprojects {
     repositories {
         google()
@@ -25,6 +30,21 @@ allprojects {
         mavenLocal()
     }
 }
+
+
+openApiGenerate {
+    generatorName = 'kotlin'
+    packageName = 'com.transportapp'
+    library = 'jvm-okhttp4'
+    groupId = 'com.transportapp'
+    id = 'client-api'
+    inputSpec = "$rootDir/APISpec.yaml"
+    outputDir = "$rootDir/openApiClient"
+    configOptions = [
+            dateLibrary: "java8"
+    ]
+}
+
 
 task clean(type: Delete) {
     delete rootProject.buildDir

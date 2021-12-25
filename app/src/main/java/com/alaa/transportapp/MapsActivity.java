@@ -19,6 +19,7 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.Operation;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -26,6 +27,8 @@ import com.alaa.fragments.ChooseRouteFragment;
 import com.alaa.fragments.ChooseServiceFragment;
 import com.alaa.utils.GetAssets;
 import com.alaa.viewmodels.ActivityModel;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -36,6 +39,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -45,12 +49,16 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -65,16 +73,28 @@ public class MapsActivity extends FragmentActivity {
     public static final String FRAGMENT_EXTRA_DATA_KEY = "Fragment Extra";
 
     public static final String UNIQUE_JOB_ID = "AnalyticsWorkID";
+    public static final String INIT_GEOFENCE_REGISTER = "InitRegisterGeofences";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            // Google Play will install latest OpenSSL
+            ProviderInstaller.installIfNeeded(getApplicationContext());
+            SSLContext sslContext;
+            sslContext = SSLContext.getInstance("TLSv1.2");
+            sslContext.init(null, null, null);
+            sslContext.createSSLEngine();
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException
+                | NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
+        }
 
 
-        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(AnalyticsJob.class, 2, TimeUnit.HOURS).build();
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(AnalyticsJob.class, 3, TimeUnit.MINUTES).build();
+        Operation operation = WorkManager.getInstance(getApplication()).enqueueUniquePeriodicWork(UNIQUE_JOB_ID, ExistingPeriodicWorkPolicy.REPLACE, workRequest);
 
-        WorkManager.getInstance(getApplication()).enqueueUniquePeriodicWork(UNIQUE_JOB_ID, ExistingPeriodicWorkPolicy.KEEP, workRequest);
 
         findViewById(android.R.id.content).setBackgroundColor(getColor(R.color.background_color));
 
@@ -90,28 +110,34 @@ public class MapsActivity extends FragmentActivity {
             viewModel.exe = Executors.newSingleThreadExecutor();
             Application app = getApplication();
             viewModel.exe.execute(() -> {
-
                 try {
                     InputStreamReader reader = new InputStreamReader(GetAssets.open(app, "final_schedule.json"));
                     Gson gson = new Gson();
                     final ActivityModel.PointsStructure points = gson.fromJson(reader, ActivityModel.PointsStructure.class);
                     viewModel.index.postValue(points);
                     reader.close();
+                    getCurrentLocation((LatLng) -> {
+                        new GeoEventsHelper().initRegisterGeoFences(MapsActivity.this, points, LatLng.latitude, LatLng.longitude);
+                    }, false, MapsActivity.this);
                 } catch (IOException e) {
+
                     e.printStackTrace();
                 }
             });
 
-            ChooseServiceFragment chooseServiceFragment = new ChooseServiceFragment();
-            if (getIntent().getExtras() != null && getIntent().getExtras().getBoolean(GeoEventsHelper.INTENT_EXTRA_GEOEVENT)) {
-                Bundle fragmentBundle = Bundle.EMPTY;
-                fragmentBundle.putSerializable(FRAGMENT_CLASS_KEY, ChooseRouteFragment.class);
-                fragmentBundle.putLong(FRAGMENT_EXTRA_DATA_KEY, getIntent().getExtras().getLong(GeoEventsHelper.ACTIVITY_INTENT_ROUTE_ID));
-                chooseServiceFragment.setArguments(fragmentBundle);
-            }
-            getSupportFragmentManager().beginTransaction().add(android.R.id.content, chooseServiceFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(android.R.id.content, new ChooseServiceFragment()).commit();
         }
 
+        if (getIntent().getExtras() != null && getIntent().getExtras().getBoolean(GeoEventsHelper.INTENT_EXTRA_GEOEVENT)) {
+            ChooseServiceFragment chooseServiceFragment = new ChooseServiceFragment();
+
+            Bundle fragmentBundle = Bundle.EMPTY;
+            fragmentBundle.putSerializable(FRAGMENT_CLASS_KEY, ChooseRouteFragment.class);
+            fragmentBundle.putLong(FRAGMENT_EXTRA_DATA_KEY, getIntent().getExtras().getLong(GeoEventsHelper.ACTIVITY_INTENT_ROUTE_ID));
+            chooseServiceFragment.setArguments(fragmentBundle);
+            Log.e("Alaa", "Start notification choose route");
+            getSupportFragmentManager().beginTransaction().replace(android.R.id.content, chooseServiceFragment).commit();
+        }
 
     }
 
@@ -179,7 +205,7 @@ public class MapsActivity extends FragmentActivity {
                 wrapper.continuous = continuous;
                 wrapper.owner = owner;
                 viewModel.callbacks_permission.addLast(wrapper);
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_CODE);
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION}, PERMISSION_CODE);
                 return;
             }
 

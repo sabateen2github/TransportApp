@@ -12,8 +12,10 @@ import java.time.Instant;
 @Entity
 public class Notification {
 
+    @PrimaryKey(autoGenerate = true)
+    public long id;
+
     @NonNull
-    @PrimaryKey
     public String userId;
 
     @NonNull
@@ -23,6 +25,7 @@ public class Notification {
     @NonNull
     public String routeId;
 
+    @NonNull
     @TypeConverters(InstantConverters.class)
     public Instant instant;
 }

@@ -18,9 +18,11 @@ import org.locationtech.proj4j.CoordinateTransform;
 import org.locationtech.proj4j.CoordinateTransformFactory;
 import org.locationtech.proj4j.ProjCoordinate;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -71,13 +73,13 @@ public class ActivityModel extends ViewModel {
                 @NonNull
                 @Override
                 public String toString() {
-                    return String.format("Latitude: {0} Longitude: {1}", coordinates[0], coordinates[1]);
+                    return MessageFormat.format("Latitude: {1} Longitude: {0}", coordinates[0], coordinates[1]);
                 }
             }
         }
 
 
-        public List<Feature> nearestKthElements(int k, double latitude, double longitude) {
+        public Set<Feature> nearestKthElements(int k, double latitude, double longitude) {
 
             Feature[] features = Arrays.copyOf(this.features, this.features.length);
 
@@ -95,7 +97,7 @@ public class ActivityModel extends ViewModel {
                 return error > 0 ? 1 : -1;
             });
 
-            return Arrays.stream(features).limit(k).collect(Collectors.toList());
+            return Arrays.stream(features).limit(k).collect(Collectors.toSet());
         }
 
 

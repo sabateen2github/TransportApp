@@ -1,2 +1,2 @@
-include ':app'
+include ':app', ':openApiClient'
 rootProject.name = "TransportApp"

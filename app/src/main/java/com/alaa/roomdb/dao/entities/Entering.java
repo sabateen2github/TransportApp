@@ -12,14 +12,17 @@ import java.time.Instant;
 @Entity
 public class Entering {
 
+    @PrimaryKey(autoGenerate = true)
+    public long id;
+
     @NonNull
-    @PrimaryKey
     public String userId;
     @NonNull
     public double latitude;
     @NonNull
     public double longitude;
 
+    @NonNull
     @TypeConverters(InstantConverters.class)
     public Instant instant;
 

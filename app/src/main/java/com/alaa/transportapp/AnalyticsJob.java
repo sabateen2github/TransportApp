@@ -3,6 +3,7 @@ package com.alaa.transportapp;
 import static com.alaa.transportapp.GeoEventsHelper.EVENTS_DB;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.Room;
@@ -35,9 +36,10 @@ public class AnalyticsJob extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-
+        Log.e("Alaa","Starting Background Job");
         sendEntering();
         sendNotifications();
+        Log.e("Alaa","Finished Background Job");
 
         return Result.success();
     }
